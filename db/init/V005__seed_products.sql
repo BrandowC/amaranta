@@ -1,0 +1,11 @@
+INSERT INTO catalog.products (sku, name, description, category, price_amount, stock_quantity, image_url, is_active) VALUES
+('FOOD-001', 'Croquetas Adulto Salmón 15kg', 'Alimento seco balanceado para perros adultos, con salmón real como primer ingrediente.', 'FOOD', 189000, 24, 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=600', true),
+('FOOD-002', 'Alimento Húmedo Gato Atún 85g', 'Pouch de atún en salsa para gatos adultos, alto contenido de humedad.', 'FOOD', 8500, 60, 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600', true),
+('ACC-001', 'Correa Retráctil 5m', 'Correa retráctil resistente para perros hasta 25kg, mango ergonómico.', 'ACCESSORIES', 65000, 15, 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600', true),
+('ACC-002', 'Cama Ortopédica Talla M', 'Cama con espuma viscoelástica, funda lavable, ideal para articulaciones.', 'ACCESSORIES', 145000, 8, 'https://images.unsplash.com/photo-1601979031925-424e53b6caaa?w=600', true),
+('HYG-001', 'Shampoo Avena e Hidratante 500ml', 'Shampoo hipoalergénico con avena para pieles sensibles.', 'HYGIENE', 42000, 30, 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600', true),
+('HYG-002', 'Arena Sanitaria Aglomerante 10kg', 'Arena de bajo polvo con control de olores para gatos.', 'HYGIENE', 55000, 40, 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600', true),
+('MED-001', 'Antipulgas Pipeta Perro Mediano', 'Tratamiento tópico mensual contra pulgas y garrapatas.', 'MEDICATION', 38000, 20, 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600', true),
+('MED-002', 'Vitaminas Multiuso Gato 60 tab', 'Suplemento multivitamínico para gatos de todas las edades.', 'MEDICATION', 47000, 0, 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600', true),
+('TOY-001', 'Pelota Interactiva Dispensadora', 'Pelota dispensadora de premios que estimula el juego mental.', 'TOYS', 32000, 18, 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600', true),
+('TOY-002', 'Rascador Torre para Gatos 90cm', 'Torre rascador de sisal con plataformas y casita.', 'TOYS', 210000, 5, 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=600', true);
