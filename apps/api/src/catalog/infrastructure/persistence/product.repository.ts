@@ -29,6 +29,31 @@ export class ProductRepository implements ProductRepositoryPort {
     };
   }
 
+  async findAllPaginated(page: number, pageSize: number): Promise<PaginatedResult<Product>> {
+    const [rows, total] = await this.repo.findAndCount({
+      order: { name: 'ASC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      items: rows.map(ProductMapper.toDomain),
+      page,
+      pageSize,
+      total,
+    };
+  }
+
+  async findById(id: string): Promise<Product | null> {
+    const row = await this.repo.findOne({ where: { id } });
+    return row ? ProductMapper.toDomain(row) : null;
+  }
+
+  async findBySku(sku: string): Promise<Product | null> {
+    const row = await this.repo.findOne({ where: { sku } });
+    return row ? ProductMapper.toDomain(row) : null;
+  }
+
   async findByIds(ids: string[]): Promise<Product[]> {
     if (ids.length === 0) return [];
     const rows = await this.repo.findBy({ id: In(ids) });
