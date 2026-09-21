@@ -32,15 +32,18 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     throw new ApiError(response.status, body?.code, body?.message ?? 'Ocurrió un error inesperado');
   }
 
-  if (response.status === 204) {
+  const rawBody = await response.text();
+  if (!rawBody) {
     return undefined as T;
   }
 
-  return response.json() as Promise<T>;
+  return JSON.parse(rawBody) as T;
 }
 
 export const api = {
   get: <T>(path: string, token?: string | null) => request<T>(path, { method: 'GET' }, token),
   post: <T>(path: string, body: unknown, token?: string | null) =>
     request<T>(path, { method: 'POST', body: JSON.stringify(body) }, token),
+  patch: <T>(path: string, body: unknown, token?: string | null) =>
+    request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }, token),
 };

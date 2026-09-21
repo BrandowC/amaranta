@@ -42,7 +42,7 @@ export default function LoginPage() {
       <h1 className="font-display text-2xl font-semibold text-ink-900">Ingresa a tu cuenta</h1>
       <p className="mt-1 text-sm text-ink-900/60">
         ¿Aún no tienes cuenta?{' '}
-        <Link href="/register" className="font-medium text-amaranth-600 hover:underline">
+        <Link href="/register" className="font-medium text-ember-600 hover:underline">
           Regístrate
         </Link>
       </p>
