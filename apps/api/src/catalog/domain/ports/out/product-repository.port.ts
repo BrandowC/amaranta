@@ -11,6 +11,9 @@ export interface PaginatedResult<T> {
 
 export interface ProductRepositoryPort {
   findActivePaginated(page: number, pageSize: number): Promise<PaginatedResult<Product>>;
+  findAllPaginated(page: number, pageSize: number): Promise<PaginatedResult<Product>>;
+  findById(id: string): Promise<Product | null>;
+  findBySku(sku: string): Promise<Product | null>;
   findByIds(ids: string[]): Promise<Product[]>;
   save(product: Product): Promise<void>;
   saveMany(products: Product[]): Promise<void>;
