@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { UserRepositoryPort } from '../../domain/ports/out/user-repository.port';
+import { UserRole } from '../../domain/value-objects/user-role.enum';
 import { UserOrmEntity } from './user.orm-entity';
 import { UserMapper } from './user.mapper';
 
@@ -25,5 +26,10 @@ export class UserRepository implements UserRepositoryPort {
   async findById(id: string): Promise<User | null> {
     const row = await this.repo.findOne({ where: { id } });
     return row ? UserMapper.toDomain(row) : null;
+  }
+
+  async findByRoles(roles: UserRole[]): Promise<User[]> {
+    const rows = await this.repo.find({ where: { role: In(roles) } });
+    return rows.map(UserMapper.toDomain);
   }
 }

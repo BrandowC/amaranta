@@ -14,6 +14,15 @@ export class OrderRepository implements OrderRepositoryPort {
   ) {}
 
   async save(order: Order): Promise<void> {
+    const exists = await this.repo.exist({ where: { id: order.id } });
+    if (exists) {
+      // Items are write-once at checkout — no domain method ever mutates them afterwards —
+      // so a re-save only needs to persist the mutable scalar columns (e.g. status from
+      // markAsPaid()). Re-running the full cascade insert here would try to re-insert the
+      // already-persisted items and collide with their unique constraints.
+      await this.repo.update(order.id, { status: order.status });
+      return;
+    }
     await this.repo.save(OrderMapper.toPersistence(order));
   }
 
