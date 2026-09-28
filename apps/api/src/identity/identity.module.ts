@@ -26,8 +26,13 @@ import { UserOrmEntity } from './infrastructure/persistence/user.orm-entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.getOrThrow<string>('JWT_SECRET'),
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN', '3600s') },
+        privateKey: config.getOrThrow<string>('JWT_PRIVATE_KEY').replace(/\\n/g, '\n'),
+        publicKey: config.getOrThrow<string>('JWT_PUBLIC_KEY').replace(/\\n/g, '\n'),
+        signOptions: {
+          algorithm: 'RS256',
+          expiresIn: config.get<string>('JWT_EXPIRES_IN', '3600s'),
+        },
+        verifyOptions: { algorithms: ['RS256'] },
       }),
     }),
   ],
