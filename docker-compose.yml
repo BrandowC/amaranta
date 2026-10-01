@@ -26,7 +26,8 @@ services:
       PORT: 8080
       CORS_ORIGIN: http://localhost:3000
       DATABASE_URL: postgresql://amaranta:amaranta@postgres:5432/amaranta
-      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY in your .env, see scripts/dev-keys.sh}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:?set JWT_PUBLIC_KEY in your .env, see scripts/dev-keys.sh}
       JWT_EXPIRES_IN: 3600s
     ports:
       - '8080:8080'
