@@ -1,5 +1,11 @@
 # Amaranta — MVP (monolito modular)
 
+**Avance MVP2:** [Catalog independiente — HU-CAT-001](apps/catalog/README.md),
+[baseline y GAP](docs/mvp2/baseline.md), [arquitectura](docs/mvp2/architecture.md)
+y [backlog](docs/mvp2/backlog.md). El nuevo servicio de consulta usa su propia DB;
+la tienda y checkout siguen en el monolito hasta el cutover de reservas.
+La descripción siguiente corresponde al MVP heredado.
+
 MVP de **Amaranta** (tienda + clínica veterinaria) implementado como un **monolito modular**
 con **NestJS + PostgreSQL** en el backend y **Next.js** en el frontend. El código vive fuera
 del repo de documentación (`amaranta-shop-docs`) a propósito: este es el proyecto de
