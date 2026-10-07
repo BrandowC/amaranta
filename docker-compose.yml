@@ -1,4 +1,14 @@
 services:
+  catalog-db:
+    extends:
+      file: docker-compose.catalog.yml
+      service: catalog-db
+
+  catalog:
+    extends:
+      file: docker-compose.catalog.yml
+      service: catalog
+
   postgres:
     image: postgres:16-alpine
     container_name: amaranta-postgres
@@ -48,3 +58,4 @@ services:
 
 volumes:
   amaranta_pgdata:
+  catalog_pgdata:
