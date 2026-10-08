@@ -7,6 +7,14 @@ import { api, ApiError } from '@/lib/api';
 import { AuthUser } from '@/lib/types';
 import { useAuth } from '@/lib/auth-context';
 import { Alert } from '@/components/Alert';
+import { translateApiError } from '@/lib/error-messages';
+
+const ROLE_HOME: Record<string, string> = {
+  VETERINARIAN: '/clinic',
+  GROOMER: '/clinic',
+  RECEPTIONIST: '/reception',
+  ADMIN: '/admin',
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,12 +31,10 @@ export default function LoginPage() {
     try {
       const user = await api.post<AuthUser>('/auth/login', { email, password });
       login(user);
-      router.push('/');
+      router.push(ROLE_HOME[user.role] ?? '/');
     } catch (err) {
-      if (err instanceof ApiError && err.code === 'INVALID_CREDENTIALS') {
-        setError('Correo o contraseña incorrectos.');
-      } else if (err instanceof ApiError) {
-        setError(err.message);
+      if (err instanceof ApiError) {
+        setError(translateApiError(err));
       } else {
         setError('No pudimos iniciar sesión. Intenta de nuevo.');
       }

@@ -6,6 +6,8 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiError } from '@/lib/api';
 import { Appointment, AppointmentStatus, Pet, ScheduleAppointmentPayload, ServiceType, StaffMember } from '@/lib/types';
 import { Alert } from '@/components/Alert';
+import { SlotPicker } from '@/components/SlotPicker';
+import { translateApiError } from '@/lib/error-messages';
 
 const SERVICE_LABEL: Record<ServiceType, string> = {
   MEDICAL_CONSULT: 'Consulta médica',
@@ -38,7 +40,7 @@ export default function AppointmentsPage() {
     api
       .get<Appointment[]>('/appointments', token)
       .then(setAppointments)
-      .catch((err: ApiError) => setError(err.message));
+      .catch((err: ApiError) => setError(translateApiError(err)));
   }
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export default function AppointmentsPage() {
       await api.post(`/appointments/${appointmentId}/cancel`, {}, user.accessToken);
       loadAppointments(user.accessToken);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No pudimos cancelar la cita.');
+      setError(err instanceof ApiError ? translateApiError(err) : 'No pudimos cancelar la cita.');
     } finally {
       setCancellingId(null);
     }
@@ -149,7 +151,7 @@ function ScheduleAppointmentForm({
   const [serviceType, setServiceType] = useState<ServiceType>('MEDICAL_CONSULT');
   const [professionalId, setProfessionalId] = useState('');
   const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [scheduledAt, setScheduledAt] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -159,7 +161,7 @@ function ScheduleAppointmentForm({
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    if (!petId || !professionalId || !date || !time) {
+    if (!petId || !professionalId || !scheduledAt) {
       setError('Completa todos los campos requeridos.');
       return;
     }
@@ -169,13 +171,13 @@ function ScheduleAppointmentForm({
         petId,
         professionalId,
         serviceType,
-        scheduledAt: new Date(`${date}T${time}`).toISOString(),
+        scheduledAt,
         notes: notes || undefined,
       };
       await api.post<Appointment>('/appointments', payload, token);
       onScheduled();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No pudimos agendar la cita. Intenta de nuevo.');
+      setError(err instanceof ApiError ? translateApiError(err) : 'No pudimos agendar la cita. Intenta de nuevo.');
     } finally {
       setSubmitting(false);
     }
@@ -183,7 +185,7 @@ function ScheduleAppointmentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 rounded-xl2 bg-white p-5 shadow-card">
-      <p className="text-xs text-ink-900/50">Horario de atención: 7:00–12:00 y 14:00–18:00, lunes a sábado.</p>
+      <p className="text-xs text-ink-900/50">Horario de atención de la clínica: 7:00 a.m. – 10:00 p.m., lunes a sábado.</p>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -228,7 +230,10 @@ function ScheduleAppointmentForm({
             id="apptProfessional"
             required
             value={professionalId}
-            onChange={(e) => setProfessionalId(e.target.value)}
+            onChange={(e) => {
+              setProfessionalId(e.target.value);
+              setScheduledAt('');
+            }}
             className="input"
           >
             <option value="">Selecciona…</option>
@@ -239,22 +244,18 @@ function ScheduleAppointmentForm({
             ))}
           </select>
         </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label htmlFor="apptDate" className="mb-1 block text-sm font-medium text-ink-900/80">
-              Fecha
-            </label>
-            <input id="apptDate" type="date" required value={date} onChange={(e) => setDate(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label htmlFor="apptTime" className="mb-1 block text-sm font-medium text-ink-900/80">
-              Hora
-            </label>
-            <input id="apptTime" type="time" required value={time} onChange={(e) => setTime(e.target.value)} className="input" />
-          </div>
-        </div>
       </div>
+
+      {professionalId && (
+        <SlotPicker
+          token={token}
+          professionalId={professionalId}
+          date={date}
+          onDateChange={setDate}
+          scheduledAt={scheduledAt}
+          onSlotSelected={setScheduledAt}
+        />
+      )}
 
       <div>
         <label htmlFor="apptNotes" className="mb-1 block text-sm font-medium text-ink-900/80">
