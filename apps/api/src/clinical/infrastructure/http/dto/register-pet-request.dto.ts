@@ -1,8 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUrl, Length, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUrl, IsUUID, Length, Min } from 'class-validator';
 import { Species } from '../../../domain/value-objects/species.enum';
 
 export class RegisterPetRequestDto {
+  @ApiProperty({ description: 'Only a veterinarian registers pets, always on behalf of this customer' })
+  @IsUUID()
+  ownerId: string;
+
   @ApiProperty({ example: 'Firulais' })
   @IsString()
   @Length(1, 50)

@@ -33,6 +33,7 @@ export class AddMedicalRecordUseCase implements AddMedicalRecordUseCasePort {
       petId: appointment.petId,
       appointmentId: command.appointmentId,
       veterinarianId: command.veterinarianId,
+      symptoms: command.symptoms,
       diagnosis: command.diagnosis,
       treatment: command.treatment,
       notes: command.notes,

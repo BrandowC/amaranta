@@ -2,12 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DomainException } from '../../shared/domain/domain-exception';
 import { GetPetQuery, GetPetUseCasePort } from '../domain/ports/in/get-pet.port';
 import { PET_REPOSITORY_PORT, PetRepositoryPort } from '../domain/ports/out/pet-repository.port';
+import { OWNER_LOOKUP_PORT, OwnerLookupPort } from '../domain/ports/out/owner-lookup.port';
 import { STAFF_ROLES } from '../domain/value-objects/staff-roles';
 import { toPetResult } from './pet.presenter';
 
 @Injectable()
 export class GetPetUseCase implements GetPetUseCasePort {
-  constructor(@Inject(PET_REPOSITORY_PORT) private readonly petRepository: PetRepositoryPort) {}
+  constructor(
+    @Inject(PET_REPOSITORY_PORT) private readonly petRepository: PetRepositoryPort,
+    @Inject(OWNER_LOOKUP_PORT) private readonly ownerLookup: OwnerLookupPort,
+  ) {}
 
   async execute(query: GetPetQuery) {
     const pet = await this.petRepository.findById(query.petId);
@@ -18,6 +22,7 @@ export class GetPetUseCase implements GetPetUseCasePort {
       throw new DomainException('FORBIDDEN', 'you can only view your own pets');
     }
 
-    return toPetResult(pet);
+    const ownerName = await this.ownerLookup.getOwnerName(pet.ownerId);
+    return { ...toPetResult(pet), ownerName: ownerName ?? undefined };
   }
 }

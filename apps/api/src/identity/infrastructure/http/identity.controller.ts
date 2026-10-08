@@ -60,7 +60,7 @@ export class IdentityController {
   @Get('customers')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.RECEPTIONIST, UserRole.ADMIN)
+  @Roles(UserRole.RECEPTIONIST, UserRole.ADMIN, UserRole.VETERINARIAN)
   async findCustomer(@Query('email') email: string) {
     const customer = await this.findCustomerByEmail.execute({ email });
     if (!customer) throw new NotFoundException(`No customer found with email "${email}"`);

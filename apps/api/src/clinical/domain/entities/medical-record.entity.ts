@@ -6,6 +6,7 @@ export interface MedicalRecordProps {
   petId: string;
   appointmentId: string;
   veterinarianId: string;
+  symptoms: string;
   diagnosis: string;
   treatment?: string;
   notes?: string;
@@ -24,10 +25,19 @@ export class MedicalRecord {
     petId: string;
     appointmentId: string;
     veterinarianId: string;
+    symptoms: string;
     diagnosis: string;
     treatment?: string;
     notes?: string;
   }): MedicalRecord {
+    const symptoms = input.symptoms.trim();
+    if (!symptoms) {
+      throw new DomainException('INV-MEDREC-004', 'symptoms are required');
+    }
+    if (symptoms.length > 1000) {
+      throw new DomainException('INV-MEDREC-004', 'symptoms must be at most 1000 characters');
+    }
+
     const diagnosis = input.diagnosis.trim();
     if (!diagnosis) {
       throw new DomainException('INV-MEDREC-002', 'diagnosis is required');
@@ -44,6 +54,7 @@ export class MedicalRecord {
       petId: input.petId,
       appointmentId: input.appointmentId,
       veterinarianId: input.veterinarianId,
+      symptoms,
       diagnosis,
       treatment: input.treatment,
       notes: input.notes,
@@ -69,6 +80,10 @@ export class MedicalRecord {
 
   get veterinarianId(): string {
     return this.props.veterinarianId;
+  }
+
+  get symptoms(): string {
+    return this.props.symptoms;
   }
 
   get diagnosis(): string {

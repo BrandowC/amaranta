@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Pet } from '../../domain/entities/pet.entity';
-import { PetRepositoryPort } from '../../domain/ports/out/pet-repository.port';
+import { PaginatedResult, PetRepositoryPort } from '../../domain/ports/out/pet-repository.port';
 import { PetOrmEntity } from './pet.orm-entity';
 import { PetMapper } from './pet.mapper';
 
@@ -25,5 +25,16 @@ export class PetRepository implements PetRepositoryPort {
   async findByOwner(ownerId: string): Promise<Pet[]> {
     const rows = await this.repo.find({ where: { ownerId }, order: { createdAt: 'DESC' } });
     return rows.map(PetMapper.toDomain);
+  }
+
+  async findAllPaginated(page: number, pageSize: number, name?: string): Promise<PaginatedResult<Pet>> {
+    const [rows, total] = await this.repo.findAndCount({
+      where: name ? { name: ILike(`%${name}%`) } : {},
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return { items: rows.map(PetMapper.toDomain), page, pageSize, total };
   }
 }

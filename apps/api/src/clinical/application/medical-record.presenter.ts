@@ -7,6 +7,7 @@ export function toMedicalRecordResult(record: MedicalRecord): MedicalRecordResul
     petId: record.petId,
     appointmentId: record.appointmentId,
     veterinarianId: record.veterinarianId,
+    symptoms: record.symptoms,
     diagnosis: record.diagnosis,
     treatment: record.treatment,
     notes: record.notes,
