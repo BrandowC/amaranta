@@ -9,4 +9,6 @@ export interface AppointmentRepositoryPort {
   findByProfessional(professionalId: string): Promise<Appointment[]>;
   /** Active (non-cancelled) appointments for a professional overlapping [scheduledAt, scheduledAt+durationMinutes). */
   findOverlapping(professionalId: string, scheduledAt: Date, durationMinutes: number): Promise<Appointment[]>;
+  /** Active (non-cancelled) appointments for a professional on the given calendar day (local to `date`). */
+  findByProfessionalOnDate(professionalId: string, date: Date): Promise<Appointment[]>;
 }

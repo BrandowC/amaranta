@@ -50,10 +50,7 @@ export class Appointment {
 
     // AGGR-INV-APPT-001: business hours.
     if (!BusinessHours.isWithinBusinessHours(input.scheduledAt, input.durationMinutes)) {
-      throw new DomainException(
-        'INV-APPT-001',
-        'appointment must be between 07:00-12:00 or 14:00-18:00, Monday to Saturday',
-      );
+      throw new DomainException('INV-APPT-001', 'appointment must be between 07:00-22:00, Monday to Saturday');
     }
 
     // AGGR-INV-APPT-004: role-service compatibility.

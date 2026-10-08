@@ -3,6 +3,11 @@ import { IsDateString, IsEnum, IsInt, IsOptional, IsString, IsUUID, Length, Max,
 import { ServiceType } from '../../../domain/value-objects/service-type.enum';
 
 export class ScheduleAppointmentRequestDto {
+  @ApiPropertyOptional({ description: 'A receptionist may book on behalf of this customer' })
+  @IsOptional()
+  @IsUUID()
+  ownerId?: string;
+
   @ApiProperty()
   @IsUUID()
   petId: string;

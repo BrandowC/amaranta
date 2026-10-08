@@ -47,4 +47,20 @@ export class AppointmentRepository implements AppointmentRepositoryPort {
 
     return rows.map(AppointmentMapper.toDomain);
   }
+
+  async findByProfessionalOnDate(professionalId: string, date: Date): Promise<Appointment[]> {
+    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, 0);
+
+    const rows = await this.repo
+      .createQueryBuilder('a')
+      .where('a.professional_id = :professionalId', { professionalId })
+      .andWhere('a.status != :cancelled', { cancelled: AppointmentStatus.CANCELLED })
+      .andWhere('a.scheduled_at >= :dayStart', { dayStart })
+      .andWhere('a.scheduled_at < :dayEnd', { dayEnd })
+      .orderBy('a.scheduled_at', 'ASC')
+      .getMany();
+
+    return rows.map(AppointmentMapper.toDomain);
+  }
 }
