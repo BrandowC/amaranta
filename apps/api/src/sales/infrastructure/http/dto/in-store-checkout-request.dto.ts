@@ -1,9 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsUUID } from 'class-validator';
 import { CheckoutRequestDto } from './checkout-request.dto';
 
 export class InStoreCheckoutRequestDto extends CheckoutRequestDto {
-  @ApiProperty({ description: 'The customer this in-store order is placed for' })
+  @ApiPropertyOptional({
+    description: 'The customer this in-store order is placed for; omit for an anonymous walk-in sale',
+  })
+  @IsOptional()
   @IsUUID()
-  customerId: string;
+  customerId?: string;
 }

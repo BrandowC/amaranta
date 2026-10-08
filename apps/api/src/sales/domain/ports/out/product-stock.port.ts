@@ -20,4 +20,6 @@ export interface ReservedStockLine {
 
 export interface ProductStockPort {
   reserve(items: StockItemRequest[]): Promise<ReservedStockLine[]>;
+  /** Gives back what `reserve` took — the compensation for a checkout that fails after reserving. */
+  release(items: StockItemRequest[]): Promise<void>;
 }
