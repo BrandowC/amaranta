@@ -3,9 +3,10 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { api, ApiError } from '@/lib/api';
+import { api, API_URL, ApiError } from '@/lib/api';
 import { AdminProduct, AdminProductListResponse, CreateProductPayload, ProductCategory } from '@/lib/types';
 import { Alert } from '@/components/Alert';
+import { translateApiError } from '@/lib/error-messages';
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   FOOD: 'Alimento',
@@ -27,7 +28,7 @@ export default function AdminPage() {
     api
       .get<AdminProductListResponse>('/admin/products?pageSize=50', token)
       .then((res) => setProducts(res.items))
-      .catch((err: ApiError) => setError(err.message));
+      .catch((err: ApiError) => setError(translateApiError(err)));
   }
 
   useEffect(() => {
@@ -58,7 +59,21 @@ export default function AdminPage() {
       await api.post(`/admin/products/${product.id}/${action}`, {}, user.accessToken);
       loadProducts(user.accessToken);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No pudimos actualizar el producto.');
+      setError(err instanceof ApiError ? translateApiError(err) : 'No pudimos actualizar el producto.');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function deleteProduct(product: AdminProduct) {
+    if (!user) return;
+    if (!window.confirm(`¿Eliminar "${product.name}" permanentemente? Esta acción no se puede deshacer.`)) return;
+    setBusyId(product.id);
+    try {
+      await api.delete(`/admin/products/${product.id}`, user.accessToken);
+      loadProducts(user.accessToken);
+    } catch (err) {
+      setError(err instanceof ApiError ? translateApiError(err) : 'No pudimos eliminar el producto.');
     } finally {
       setBusyId(null);
     }
@@ -68,7 +83,7 @@ export default function AdminPage() {
     <div className="mx-auto max-w-4xl space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-semibold text-ink-900">Administrar catálogo</h1>
-        <button onClick={() => setShowForm((v) => !v)} className="btn-primary">
+        <button onClick={() => setShowForm((v) => !v)} className="btn-primary-ocean">
           {showForm ? 'Cancelar' : '+ Nuevo producto'}
         </button>
       </div>
@@ -123,13 +138,22 @@ export default function AdminPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => toggleActive(product)}
-                    disabled={busyId === product.id}
-                    className="text-xs font-semibold text-ember-600 hover:underline"
-                  >
-                    {product.isActive ? 'Desactivar' : 'Activar'}
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => toggleActive(product)}
+                      disabled={busyId === product.id}
+                      className="text-xs font-semibold text-ocean-600 hover:underline"
+                    >
+                      {product.isActive ? 'Desactivar' : 'Activar'}
+                    </button>
+                    <button
+                      onClick={() => deleteProduct(product)}
+                      disabled={busyId === product.id}
+                      className="text-xs font-semibold text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -187,12 +211,40 @@ function CreateProductForm({ token, onCreated }: { token: string; onCreated: () 
   const [price, setPrice] = useState('');
   const [stockQuantity, setStockQuantity] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  async function handleImageSelected(event: FormEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    if (!file) return;
+    setError(null);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`${API_URL}/admin/products/upload-image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!response.ok) throw new Error('No pudimos subir la imagen.');
+      const result: { imageUrl: string } = await response.json();
+      setImageUrl(`${API_URL}${result.imageUrl}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No pudimos subir la imagen.');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    if (!imageUrl) {
+      setError('Sube una imagen para el producto.');
+      return;
+    }
     setSubmitting(true);
     try {
       const payload: CreateProductPayload = {
@@ -207,7 +259,7 @@ function CreateProductForm({ token, onCreated }: { token: string; onCreated: () 
       await api.post('/admin/products', payload, token);
       onCreated();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No pudimos crear el producto.');
+      setError(err instanceof ApiError ? translateApiError(err) : 'No pudimos crear el producto.');
     } finally {
       setSubmitting(false);
     }
@@ -254,21 +306,19 @@ function CreateProductForm({ token, onCreated }: { token: string; onCreated: () 
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-ink-900/80">URL de imagen</label>
-          <input
-            required
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className="input"
-            placeholder="https://…"
-          />
+          <label className="mb-1 block text-sm font-medium text-ink-900/80">Imagen del producto</label>
+          <input type="file" accept="image/*" onChange={handleImageSelected} disabled={uploading} className="input" />
+          {uploading && <p className="mt-1 text-xs text-ink-900/50">Subiendo imagen…</p>}
+          {imageUrl && !uploading && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageUrl} alt="Vista previa" className="mt-2 h-20 w-20 rounded-lg object-cover" />
+          )}
         </div>
       </div>
 
       {error && <Alert kind="error">{error}</Alert>}
 
-      <button type="submit" disabled={submitting} className="btn-primary w-full">
+      <button type="submit" disabled={submitting || uploading} className="btn-primary-ocean w-full">
         {submitting ? 'Creando…' : 'Crear producto'}
       </button>
     </form>

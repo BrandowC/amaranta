@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiError } from '@/lib/api';
 import { Order } from '@/lib/types';
 import { Alert } from '@/components/Alert';
+import { translateApiError } from '@/lib/error-messages';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pendiente de pago',
@@ -30,7 +31,7 @@ export default function OrdersPage() {
     api
       .get<Order[]>('/orders', user.accessToken)
       .then(setOrders)
-      .catch((err: ApiError) => setError(err.message));
+      .catch((err: ApiError) => setError(translateApiError(err)));
   }, [user, authLoading, router]);
 
   if (!user) return null;

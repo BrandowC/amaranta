@@ -72,6 +72,7 @@ export type Species = 'DOG' | 'CAT' | 'OTHER';
 export interface Pet {
   petId: string;
   ownerId: string;
+  ownerName?: string;
   name: string;
   species: Species;
   breed?: string;
@@ -81,6 +82,8 @@ export interface Pet {
 }
 
 export interface RegisterPetPayload {
+  /** A veterinarian may register a pet on behalf of this customer. */
+  ownerId?: string;
   name: string;
   species: Species;
   breed?: string;
@@ -93,10 +96,21 @@ export interface MedicalRecord {
   petId: string;
   appointmentId: string;
   veterinarianId: string;
+  symptoms: string;
   diagnosis: string;
   treatment?: string;
   notes?: string;
   createdAt: string;
+}
+
+export interface PublicPetHistory {
+  pet: {
+    petId: string;
+    name: string;
+    species: Species;
+    breed?: string;
+  };
+  records: MedicalRecord[];
 }
 
 export type ServiceType = 'MEDICAL_CONSULT' | 'VACCINATION' | 'GROOMING' | 'SURGERY' | 'EMERGENCY';
@@ -115,6 +129,8 @@ export interface Appointment {
 }
 
 export interface ScheduleAppointmentPayload {
+  /** A receptionist may book on behalf of this customer. */
+  ownerId?: string;
   petId: string;
   professionalId: string;
   serviceType: ServiceType;
@@ -176,11 +192,13 @@ export interface CreateProductPayload {
 }
 
 export interface InStoreCheckoutPayload extends CheckoutPayload {
-  customerId: string;
+  /** Omit for an anonymous walk-in sale — the backend attributes it to a generic walk-in customer. */
+  customerId?: string;
 }
 
 export interface AddMedicalRecordPayload {
   appointmentId: string;
+  symptoms: string;
   diagnosis: string;
   treatment?: string;
   notes?: string;

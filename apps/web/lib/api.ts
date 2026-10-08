@@ -1,6 +1,6 @@
 import { ApiErrorBody } from './types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
 export class ApiError extends Error {
   constructor(
@@ -46,4 +46,5 @@ export const api = {
     request<T>(path, { method: 'POST', body: JSON.stringify(body) }, token),
   patch: <T>(path: string, body: unknown, token?: string | null) =>
     request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }, token),
+  delete: <T>(path: string, token?: string | null) => request<T>(path, { method: 'DELETE' }, token),
 };

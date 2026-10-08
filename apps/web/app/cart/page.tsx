@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiError } from '@/lib/api';
 import { CheckoutPayload, FulfillmentMethod, Order, PaymentMethod } from '@/lib/types';
 import { formatCOP } from '@/lib/format';
+import { translateApiError } from '@/lib/error-messages';
 import { Alert } from '@/components/Alert';
 import { InteractiveHero } from '@/components/InteractiveHero';
 
@@ -29,7 +29,6 @@ const PAYMENT_LABEL: Record<PaymentMethod, string> = {
 export default function CartPage() {
   const { lines, totalAmount, setQuantity, remove, clear } = useCart();
   const { user } = useAuth();
-  const router = useRouter();
 
   const [step, setStep] = useState<Step>('cart');
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod | null>(null);
@@ -53,10 +52,6 @@ export default function CartPage() {
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
 
   function goToFulfillment() {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
     setStep('fulfillment');
   }
 
@@ -79,7 +74,7 @@ export default function CartPage() {
   }
 
   async function handleConfirm() {
-    if (!user || !fulfillmentMethod) return;
+    if (!fulfillmentMethod) return;
     setError(null);
     setSubmitting(true);
     try {
@@ -91,12 +86,12 @@ export default function CartPage() {
         contactPhone: contactPhone.trim(),
         ...(fulfillmentMethod === 'DELIVERY' ? { deliveryAddress: deliveryAddress.trim() } : {}),
       };
-      const order = await api.post<Order>('/orders', payload, user.accessToken);
+      const order = await api.post<Order>('/orders', payload, user?.accessToken);
       setConfirmedOrder(order);
       clear();
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        setError(translateApiError(err));
       } else {
         setError('No pudimos procesar tu pedido. Intenta de nuevo.');
       }
@@ -265,7 +260,11 @@ function CartStep({
           <span>Subtotal</span>
           <span>{formatCOP(totalAmount)}</span>
         </div>
-        {!user && <Alert kind="success">Inicia sesión en el siguiente paso para finalizar tu compra.</Alert>}
+        {!user && (
+          <Alert kind="success">
+            No necesitas una cuenta para comprar — solo para agendar citas o ver el historial de tu mascota.
+          </Alert>
+        )}
         <button onClick={onContinue} className="btn-primary mt-4 w-full">
           Continuar
         </button>
@@ -492,7 +491,7 @@ function ReviewStep({
 }
 
 function OrderConfirmation({ order }: { order: Order }) {
-  const whatsappText = buildWhatsappMesocean(order);
+  const whatsappText = buildWhatsappMessage(order);
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}`;
 
   return (
@@ -532,7 +531,7 @@ function OrderConfirmation({ order }: { order: Order }) {
   );
 }
 
-function buildWhatsappMesocean(order: Order): string {
+function buildWhatsappMessage(order: Order): string {
   const lines = order.items.map((item) => `- ${item.quantity}x ${item.productName}: ${formatCOP(item.subtotal)}`);
   const deliveryLine =
     order.fulfillmentMethod === 'PICKUP' ? 'Recoger en tienda' : `A domicilio — ${order.deliveryAddress}`;

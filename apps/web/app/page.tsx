@@ -6,6 +6,7 @@ import { ProductListResponse } from '@/lib/types';
 import { ProductCard } from '@/components/ProductCard';
 import { Alert } from '@/components/Alert';
 import { InteractiveHero } from '@/components/InteractiveHero';
+import { translateApiError } from '@/lib/error-messages';
 
 export default function ShopPage() {
   const [data, setData] = useState<ProductListResponse | null>(null);
@@ -16,7 +17,7 @@ export default function ShopPage() {
     api
       .get<ProductListResponse>('/products?page=1&pageSize=50')
       .then(setData)
-      .catch((err: ApiError) => setError(err.message))
+      .catch((err: ApiError) => setError(translateApiError(err)))
       .finally(() => setLoading(false));
   }, []);
 
