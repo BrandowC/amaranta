@@ -8,6 +8,7 @@ import { OrderChannel } from '../value-objects/order-channel.enum';
 import { FulfillmentMethod } from '../value-objects/fulfillment-method.enum';
 import { PaymentMethod } from '../value-objects/payment-method.enum';
 import { OrderCreatedEvent } from '../events/order-created.event';
+import { ShopHours } from '../value-objects/shop-hours.vo';
 
 export interface OrderProps {
   id: string;
@@ -45,6 +46,11 @@ export class Order {
     contactPhone: string;
     deliveryAddress?: string;
   }): Order {
+    // AGGR-INV-ORDER-008: an order can only be placed while the store is open.
+    if (!ShopHours.isWithinShopHours(new Date())) {
+      throw new DomainException('INV-ORDER-008', 'the store is closed right now');
+    }
+
     // AGGR-INV-ORDER-004: at least one item.
     if (input.items.length === 0) {
       throw new DomainException('INV-ORDER-004', 'an order must have at least one item');
