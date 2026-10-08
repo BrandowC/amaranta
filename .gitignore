@@ -11,3 +11,6 @@ coverage/
 apps/api/uploads/
 keys/
 *.pem
+keys/
+*.tsbuildinfo
+.claude/
