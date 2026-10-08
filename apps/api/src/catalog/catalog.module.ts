@@ -3,10 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IdentityModule } from '../identity/identity.module';
 import { CatalogController } from './infrastructure/http/catalog.controller';
 import { AdminCatalogController } from './infrastructure/http/admin-catalog.controller';
+import { ProductImageUploadController } from './infrastructure/http/product-image-upload.controller';
 import { ListProductsUseCase } from './application/list-products.use-case';
 import { ReserveStockUseCase } from './application/reserve-stock.use-case';
+import { ReleaseStockUseCase } from './application/release-stock.use-case';
 import {
   CreateProductUseCase,
+  DeleteProductUseCase,
   ListAllProductsUseCase,
   SetProductActiveUseCase,
   SetProductStockUseCase,
@@ -18,18 +21,20 @@ import { ProductOrmEntity } from './infrastructure/persistence/product.orm-entit
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProductOrmEntity]), IdentityModule],
-  controllers: [CatalogController, AdminCatalogController],
+  controllers: [CatalogController, AdminCatalogController, ProductImageUploadController],
   providers: [
     ListProductsUseCase,
     ReserveStockUseCase,
+    ReleaseStockUseCase,
     ListAllProductsUseCase,
     CreateProductUseCase,
     UpdateProductUseCase,
     SetProductStockUseCase,
     SetProductActiveUseCase,
+    DeleteProductUseCase,
     { provide: PRODUCT_REPOSITORY_PORT, useClass: ProductRepository },
   ],
-  // Exported so Sales can call ReserveStockUseCase in-process (today's REST-equivalent seam).
-  exports: [ReserveStockUseCase],
+  // Exported so Sales can call Reserve/ReleaseStockUseCase in-process (today's REST-equivalent seam).
+  exports: [ReserveStockUseCase, ReleaseStockUseCase],
 })
 export class CatalogModule {}
