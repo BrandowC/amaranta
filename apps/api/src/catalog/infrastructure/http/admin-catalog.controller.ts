@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../identity/infrastructure/security/jwt-auth.guard';
 import { RolesGuard } from '../../../identity/infrastructure/security/roles.guard';
@@ -9,6 +9,7 @@ import { UpdateProductRequestDto } from './dto/update-product-request.dto';
 import { SetProductStockRequestDto } from './dto/set-product-stock-request.dto';
 import {
   CreateProductUseCasePort,
+  DeleteProductUseCasePort,
   ListAllProductsUseCasePort,
   SetProductActiveUseCasePort,
   SetProductStockUseCasePort,
@@ -16,6 +17,7 @@ import {
 } from '../../domain/ports/in/manage-products.port';
 import {
   CreateProductUseCase,
+  DeleteProductUseCase,
   ListAllProductsUseCase,
   SetProductActiveUseCase,
   SetProductStockUseCase,
@@ -34,6 +36,7 @@ export class AdminCatalogController {
     @Inject(UpdateProductUseCase) private readonly updateProduct: UpdateProductUseCasePort,
     @Inject(SetProductStockUseCase) private readonly setProductStock: SetProductStockUseCasePort,
     @Inject(SetProductActiveUseCase) private readonly setProductActive: SetProductActiveUseCasePort,
+    @Inject(DeleteProductUseCase) private readonly deleteProduct: DeleteProductUseCasePort,
   ) {}
 
   @Get()
@@ -68,5 +71,11 @@ export class AdminCatalogController {
   @Post(':productId/activate')
   activate(@Param('productId') productId: string) {
     return this.setProductActive.execute({ productId, isActive: true });
+  }
+
+  @Delete(':productId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('productId') productId: string) {
+    return this.deleteProduct.execute({ productId });
   }
 }

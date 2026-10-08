@@ -7,6 +7,8 @@ import {
   AdminProductView,
   CreateProductCommand,
   CreateProductUseCasePort,
+  DeleteProductCommand,
+  DeleteProductUseCasePort,
   ListAllProductsQuery,
   ListAllProductsResult,
   ListAllProductsUseCasePort,
@@ -118,5 +120,15 @@ export class SetProductActiveUseCase implements SetProductActiveUseCasePort {
     else product.deactivate();
     await this.productRepository.save(product);
     return toAdminView(product);
+  }
+}
+
+@Injectable()
+export class DeleteProductUseCase implements DeleteProductUseCasePort {
+  constructor(@Inject(PRODUCT_REPOSITORY_PORT) private readonly productRepository: ProductRepositoryPort) {}
+
+  async execute(command: DeleteProductCommand): Promise<void> {
+    await loadOrThrow(this.productRepository, command.productId);
+    await this.productRepository.deleteById(command.productId);
   }
 }

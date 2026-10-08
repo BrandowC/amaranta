@@ -73,3 +73,11 @@ export interface SetProductActiveCommand {
 export interface SetProductActiveUseCasePort {
   execute(command: SetProductActiveCommand): Promise<AdminProductView>;
 }
+
+export interface DeleteProductCommand {
+  productId: string;
+}
+
+export interface DeleteProductUseCasePort {
+  execute(command: DeleteProductCommand): Promise<void>;
+}
