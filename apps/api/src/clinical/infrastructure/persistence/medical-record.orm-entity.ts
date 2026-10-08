@@ -14,6 +14,9 @@ export class MedicalRecordOrmEntity {
   @Column({ name: 'veterinarian_id', type: 'uuid' })
   veterinarianId: string;
 
+  @Column({ length: 1000, default: '' })
+  symptoms: string;
+
   @Column({ length: 1000 })
   diagnosis: string;
 

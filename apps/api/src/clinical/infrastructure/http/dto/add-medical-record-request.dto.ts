@@ -6,6 +6,11 @@ export class AddMedicalRecordRequestDto {
   @IsUUID()
   appointmentId: string;
 
+  @ApiProperty({ example: 'Rascado frecuente en la oreja, mal olor' })
+  @IsString()
+  @Length(1, 1000)
+  symptoms: string;
+
   @ApiProperty({ example: 'Otitis leve en oído derecho' })
   @IsString()
   @Length(1, 1000)
