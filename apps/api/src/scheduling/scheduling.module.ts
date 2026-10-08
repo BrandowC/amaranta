@@ -8,6 +8,7 @@ import { CancelAppointmentUseCase } from './application/cancel-appointment.use-c
 import { CompleteAppointmentUseCase } from './application/complete-appointment.use-case';
 import { ListMyAppointmentsUseCase } from './application/list-my-appointments.use-case';
 import { ListAssignedAppointmentsUseCase } from './application/list-assigned-appointments.use-case';
+import { GetAvailableSlotsUseCase } from './application/get-available-slots.use-case';
 import { APPOINTMENT_REPOSITORY_PORT } from './domain/ports/out/appointment-repository.port';
 import { SCHED_PET_VERIFICATION_PORT } from './domain/ports/out/pet-verification.port';
 import { PROFESSIONAL_VERIFICATION_PORT } from './domain/ports/out/professional-verification.port';
@@ -34,6 +35,7 @@ import { APPOINTMENT_STATUS_PORT } from '../clinical/domain/ports/out/appointmen
     CompleteAppointmentUseCase,
     ListMyAppointmentsUseCase,
     ListAssignedAppointmentsUseCase,
+    GetAvailableSlotsUseCase,
     AppointmentNotificationListener,
     { provide: APPOINTMENT_REPOSITORY_PORT, useClass: AppointmentRepository },
     { provide: SCHED_PET_VERIFICATION_PORT, useClass: SchedulingPetVerificationAdapter },

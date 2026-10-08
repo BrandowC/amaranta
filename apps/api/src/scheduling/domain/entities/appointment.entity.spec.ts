@@ -37,14 +37,20 @@ describe('Appointment', () => {
   });
 
   it('rejects a booking outside business hours (INV-APPT-001)', () => {
-    const lunchtime = nextMonday9am();
-    lunchtime.setHours(13, 0, 0, 0); // 13:00 is the lunch break
-    expect(() => Appointment.schedule(scheduleParams({ scheduledAt: lunchtime }))).toThrow('INV-APPT-001');
+    const tooLate = nextMonday9am();
+    tooLate.setHours(23, 0, 0, 0); // clinic closes at 22:00
+    expect(() => Appointment.schedule(scheduleParams({ scheduledAt: tooLate }))).toThrow('INV-APPT-001');
+  });
+
+  it('accepts a booking at midday, since the clinic has no lunch break (INV-APPT-001)', () => {
+    const midday = nextMonday9am();
+    midday.setHours(13, 0, 0, 0);
+    expect(() => Appointment.schedule(scheduleParams({ scheduledAt: midday }))).not.toThrow();
   });
 
   it('rejects a booking that straddles closing time (INV-APPT-001)', () => {
     const closeToClosing = nextMonday9am();
-    closeToClosing.setHours(17, 45, 0, 0);
+    closeToClosing.setHours(21, 45, 0, 0);
     expect(() =>
       Appointment.schedule(scheduleParams({ scheduledAt: closeToClosing, durationMinutes: 30 })),
     ).toThrow('INV-APPT-001');
