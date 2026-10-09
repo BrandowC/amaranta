@@ -7,6 +7,8 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiError } from '@/lib/api';
 import { MedicalRecord, Pet } from '@/lib/types';
 import { Alert } from '@/components/Alert';
+import { PetQrCode } from '@/components/PetQrCode';
+import { translateApiError } from '@/lib/error-messages';
 
 export default function PetDetailPage() {
   const { user, loading: authLoading } = useAuth();
@@ -15,6 +17,7 @@ export default function PetDetailPage() {
   const [pet, setPet] = useState<Pet | null>(null);
   const [history, setHistory] = useState<MedicalRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showQr, setShowQr] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -28,7 +31,7 @@ export default function PetDetailPage() {
     api
       .get<MedicalRecord[]>(`/pets/${params.petId}/medical-history`, user.accessToken)
       .then(setHistory)
-      .catch((err: ApiError) => setError(err.message));
+      .catch((err: ApiError) => setError(translateApiError(err)));
   }, [user, authLoading, router, params.petId]);
 
   if (!user) return null;
@@ -39,7 +42,19 @@ export default function PetDetailPage() {
         ← Mis mascotas
       </Link>
 
-      <h1 className="font-display text-2xl font-semibold text-ink-900">{pet?.name ?? 'Mascota'}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <h1 className="font-display text-2xl font-semibold text-ink-900">{pet?.name ?? 'Mascota'}</h1>
+        {pet && (
+          <button
+            onClick={() => setShowQr((v) => !v)}
+            className="rounded-full border border-ember-500 px-4 py-2 text-sm font-medium text-ember-600 hover:bg-ember-50"
+          >
+            {showQr ? 'Ocultar QR' : 'QR'}
+          </button>
+        )}
+      </div>
+
+      {showQr && pet && <PetQrCode petId={pet.petId} size={160} />}
 
       {error && <Alert kind="error">{error}</Alert>}
 
@@ -56,7 +71,8 @@ export default function PetDetailPage() {
           <div className="flex items-center justify-between text-xs text-ink-900/50">
             <span>{new Date(record.createdAt).toLocaleDateString('es-CO', { dateStyle: 'long' })}</span>
           </div>
-          <p className="mt-2 font-medium text-ink-900">{record.diagnosis}</p>
+          <p className="mt-2 text-sm text-ink-900/70">Síntomas: {record.symptoms}</p>
+          <p className="mt-1 font-medium text-ink-900">{record.diagnosis}</p>
           {record.treatment && <p className="mt-1 text-sm text-ink-900/70">Tratamiento: {record.treatment}</p>}
           {record.notes && <p className="mt-1 text-sm text-ink-900/60">{record.notes}</p>}
         </div>
