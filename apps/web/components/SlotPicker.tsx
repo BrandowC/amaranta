@@ -5,8 +5,7 @@ import { api } from '@/lib/api';
 
 interface AvailableSlots {
   isClosed: boolean;
-  openMinute: number;
-  closeMinute: number;
+  windows: { openMinute: number; closeMinute: number }[];
   booked: { scheduledAt: string; durationMinutes: number }[];
 }
 
@@ -64,8 +63,14 @@ export function SlotPicker({
 
   const candidateSlots: number[] = [];
   if (slots && !slots.isClosed) {
-    for (let m = slots.openMinute; m + ASSUMED_SLOT_DURATION <= slots.closeMinute; m += SLOT_STEP_MINUTES) {
-      candidateSlots.push(m);
+    for (const window of slots.windows) {
+      for (
+        let m = window.openMinute;
+        m + ASSUMED_SLOT_DURATION <= window.closeMinute;
+        m += SLOT_STEP_MINUTES
+      ) {
+        candidateSlots.push(m);
+      }
     }
   }
 
