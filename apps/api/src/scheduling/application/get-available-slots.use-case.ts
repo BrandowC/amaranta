@@ -13,17 +13,17 @@ export class GetAvailableSlotsUseCase implements GetAvailableSlotsUseCasePort {
 
   async execute(query: GetAvailableSlotsQuery): Promise<AvailableSlotsResult> {
     const date = new Date(`${query.date}T00:00:00`);
+    const windows = BusinessHours.WINDOWS.map(({ openMinute, closeMinute }) => ({ openMinute, closeMinute }));
 
     if (BusinessHours.isClosedOn(date)) {
-      return { isClosed: true, openMinute: BusinessHours.OPEN_MIN, closeMinute: BusinessHours.CLOSE_MIN, booked: [] };
+      return { isClosed: true, windows, booked: [] };
     }
 
     const appointments = await this.appointmentRepository.findByProfessionalOnDate(query.professionalId, date);
 
     return {
       isClosed: false,
-      openMinute: BusinessHours.OPEN_MIN,
-      closeMinute: BusinessHours.CLOSE_MIN,
+      windows,
       booked: appointments.map((a) => ({ scheduledAt: a.scheduledAt.toISOString(), durationMinutes: a.durationMinutes })),
     };
   }
