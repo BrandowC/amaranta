@@ -86,7 +86,7 @@ export function FlyToCartProvider({ children }: { children: ReactNode }) {
               }}
               exit={{ opacity: 0, scale: 0 }}
               transition={{ duration: DURATION_MS / 1000, ease: [0.33, 1, 0.68, 1] }}
-              className="fixed left-0 top-0 flex items-center justify-center rounded-full bg-amaranth-500 text-xs shadow-lg ring-2 ring-white"
+              className="fixed left-0 top-0 flex items-center justify-center rounded-full bg-ember-500 text-xs shadow-lg ring-2 ring-white"
               style={{ width: BUBBLE_SIZE, height: BUBBLE_SIZE }}
             >
               🐾

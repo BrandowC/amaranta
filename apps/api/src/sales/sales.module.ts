@@ -5,6 +5,7 @@ import { IdentityModule } from '../identity/identity.module';
 import { SalesController } from './infrastructure/http/sales.controller';
 import { CheckoutUseCase } from './application/checkout.use-case';
 import { ListMyOrdersUseCase } from './application/list-my-orders.use-case';
+import { MarkOrderAsPaidUseCase } from './application/mark-order-as-paid.use-case';
 import { ORDER_REPOSITORY_PORT } from './domain/ports/out/order-repository.port';
 import { PRODUCT_STOCK_PORT } from './domain/ports/out/product-stock.port';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
@@ -19,6 +20,7 @@ import { OrderItemOrmEntity } from './infrastructure/persistence/order-item.orm-
   providers: [
     CheckoutUseCase,
     ListMyOrdersUseCase,
+    MarkOrderAsPaidUseCase,
     OrderCreatedListener,
     { provide: ORDER_REPOSITORY_PORT, useClass: OrderRepository },
     { provide: PRODUCT_STOCK_PORT, useClass: CatalogStockAdapter },

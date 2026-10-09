@@ -6,6 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IdentityController } from './infrastructure/http/identity.controller';
 import { RegisterUserUseCase } from './application/register-user.use-case';
 import { LoginUseCase } from './application/login.use-case';
+import { ListStaffUseCase } from './application/list-staff.use-case';
+import { RegisterWalkInCustomerUseCase } from './application/register-walk-in-customer.use-case';
+import { FindCustomerByEmailUseCase } from './application/find-customer-by-email.use-case';
 import { USER_REPOSITORY_PORT } from './domain/ports/out/user-repository.port';
 import { PASSWORD_HASHER_PORT } from './domain/ports/out/password-hasher.port';
 import { TOKEN_ISSUER_PORT } from './domain/ports/out/token-issuer.port';
@@ -23,8 +26,13 @@ import { UserOrmEntity } from './infrastructure/persistence/user.orm-entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.getOrThrow<string>('JWT_SECRET'),
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN', '3600s') },
+        privateKey: config.getOrThrow<string>('JWT_PRIVATE_KEY').replace(/\\n/g, '\n'),
+        publicKey: config.getOrThrow<string>('JWT_PUBLIC_KEY').replace(/\\n/g, '\n'),
+        signOptions: {
+          algorithm: 'RS256',
+          expiresIn: config.get<string>('JWT_EXPIRES_IN', '3600s'),
+        },
+        verifyOptions: { algorithms: ['RS256'] },
       }),
     }),
   ],
@@ -32,11 +40,14 @@ import { UserOrmEntity } from './infrastructure/persistence/user.orm-entity';
   providers: [
     RegisterUserUseCase,
     LoginUseCase,
+    ListStaffUseCase,
+    RegisterWalkInCustomerUseCase,
+    FindCustomerByEmailUseCase,
     JwtStrategy,
     { provide: USER_REPOSITORY_PORT, useClass: UserRepository },
     { provide: PASSWORD_HASHER_PORT, useClass: BcryptPasswordHasher },
     { provide: TOKEN_ISSUER_PORT, useClass: JwtTokenIssuer },
   ],
-  exports: [PassportModule, JwtModule],
+  exports: [PassportModule, JwtModule, USER_REPOSITORY_PORT],
 })
 export class IdentityModule {}

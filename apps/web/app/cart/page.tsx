@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
 import { api, ApiError } from '@/lib/api';
 import { CheckoutPayload, FulfillmentMethod, Order, PaymentMethod } from '@/lib/types';
 import { formatCOP } from '@/lib/format';
+import { translateApiError } from '@/lib/error-messages';
 import { Alert } from '@/components/Alert';
+import { InteractiveHero } from '@/components/InteractiveHero';
 
 type Step = 'cart' | 'fulfillment' | 'details' | 'review';
 
@@ -28,7 +29,6 @@ const PAYMENT_LABEL: Record<PaymentMethod, string> = {
 export default function CartPage() {
   const { lines, totalAmount, setQuantity, remove, clear } = useCart();
   const { user } = useAuth();
-  const router = useRouter();
 
   const [step, setStep] = useState<Step>('cart');
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod | null>(null);
@@ -52,10 +52,6 @@ export default function CartPage() {
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
 
   function goToFulfillment() {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
     setStep('fulfillment');
   }
 
@@ -78,7 +74,7 @@ export default function CartPage() {
   }
 
   async function handleConfirm() {
-    if (!user || !fulfillmentMethod) return;
+    if (!fulfillmentMethod) return;
     setError(null);
     setSubmitting(true);
     try {
@@ -90,12 +86,12 @@ export default function CartPage() {
         contactPhone: contactPhone.trim(),
         ...(fulfillmentMethod === 'DELIVERY' ? { deliveryAddress: deliveryAddress.trim() } : {}),
       };
-      const order = await api.post<Order>('/orders', payload, user.accessToken);
+      const order = await api.post<Order>('/orders', payload, user?.accessToken);
       setConfirmedOrder(order);
       clear();
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        setError(translateApiError(err));
       } else {
         setError('No pudimos procesar tu pedido. Intenta de nuevo.');
       }
@@ -124,7 +120,9 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[280px_1fr]">
+      <InteractiveHero variant="shop" side="left" className="hidden self-start lg:block" />
+      <div className="space-y-6">
       <Stepper current={step} />
 
       {step === 'cart' && (
@@ -172,6 +170,7 @@ export default function CartPage() {
           onConfirm={handleConfirm}
         />
       )}
+      </div>
     </div>
   );
 }
@@ -185,19 +184,19 @@ function Stepper({ current }: { current: Step }) {
           <div className="flex flex-col items-center gap-1">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                i <= currentIndex ? 'bg-amaranth-500 text-white' : 'bg-amaranth-100 text-amaranth-400'
+                i <= currentIndex ? 'bg-ember-500 text-white' : 'bg-ember-100 text-ember-400'
               }`}
             >
               {i + 1}
             </div>
             <span
-              className={`text-xs font-medium ${i <= currentIndex ? 'text-amaranth-700' : 'text-ink-900/40'}`}
+              className={`text-xs font-medium ${i <= currentIndex ? 'text-ember-700' : 'text-ink-900/40'}`}
             >
               {s.label}
             </span>
           </div>
           {i < STEPS.length - 1 && (
-            <div className={`mx-2 h-0.5 flex-1 ${i < currentIndex ? 'bg-amaranth-500' : 'bg-amaranth-100'}`} />
+            <div className={`mx-2 h-0.5 flex-1 ${i < currentIndex ? 'bg-ember-500' : 'bg-ember-100'}`} />
           )}
         </li>
       ))}
@@ -229,7 +228,7 @@ function CartStep({
           <img
             src={line.product.imageUrl}
             alt={line.product.name}
-            className="h-20 w-20 shrink-0 rounded-lg bg-amaranth-50 object-cover"
+            className="h-20 w-20 shrink-0 rounded-lg bg-ember-50 object-cover"
           />
           <div className="flex-1">
             <p className="font-display font-semibold text-ink-900">{line.product.name}</p>
@@ -243,7 +242,7 @@ function CartStep({
             onChange={(e) => setQuantity(line.product.id, Number(e.target.value))}
             className="input w-20 text-center"
           />
-          <p className="w-24 text-right font-semibold text-amaranth-700">
+          <p className="w-24 text-right font-semibold text-ember-700">
             {formatCOP(line.product.price * line.quantity)}
           </p>
           <button
@@ -261,7 +260,11 @@ function CartStep({
           <span>Subtotal</span>
           <span>{formatCOP(totalAmount)}</span>
         </div>
-        {!user && <Alert kind="success">Inicia sesión en el siguiente paso para finalizar tu compra.</Alert>}
+        {!user && (
+          <Alert kind="success">
+            No necesitas una cuenta para comprar — solo para agendar citas o ver el historial de tu mascota.
+          </Alert>
+        )}
         <button onClick={onContinue} className="btn-primary mt-4 w-full">
           Continuar
         </button>
@@ -283,7 +286,7 @@ function FulfillmentStep({
       <div className="grid gap-4 sm:grid-cols-2">
         <button
           onClick={() => onChoose('DELIVERY')}
-          className="flex flex-col items-center gap-2 rounded-xl2 border-2 border-transparent bg-white p-8 text-center shadow-card transition hover:border-amaranth-400"
+          className="flex flex-col items-center gap-2 rounded-xl2 border-2 border-transparent bg-white p-8 text-center shadow-card transition hover:border-ember-400"
         >
           <span className="text-4xl" aria-hidden>
             🚚
@@ -293,7 +296,7 @@ function FulfillmentStep({
         </button>
         <button
           onClick={() => onChoose('PICKUP')}
-          className="flex flex-col items-center gap-2 rounded-xl2 border-2 border-transparent bg-white p-8 text-center shadow-card transition hover:border-amaranth-400"
+          className="flex flex-col items-center gap-2 rounded-xl2 border-2 border-transparent bg-white p-8 text-center shadow-card transition hover:border-ember-400"
         >
           <span className="text-4xl" aria-hidden>
             🏪
@@ -302,7 +305,7 @@ function FulfillmentStep({
           <span className="text-sm text-ink-900/60">Sin costo adicional</span>
         </button>
       </div>
-      <button onClick={onBack} className="text-sm font-medium text-amaranth-600 hover:underline">
+      <button onClick={onBack} className="text-sm font-medium text-ember-600 hover:underline">
         ← Volver al carrito
       </button>
     </div>
@@ -387,7 +390,7 @@ function DetailsStep({
           {(Object.keys(PAYMENT_LABEL) as PaymentMethod[]).map((method) => (
             <label
               key={method}
-              className="flex cursor-pointer items-center gap-3 rounded-lg border border-ink-900/10 px-4 py-3 has-[:checked]:border-amaranth-400 has-[:checked]:bg-amaranth-50"
+              className="flex cursor-pointer items-center gap-3 rounded-lg border border-ink-900/10 px-4 py-3 has-[:checked]:border-ember-400 has-[:checked]:bg-ember-50"
             >
               <input
                 type="radio"
@@ -395,7 +398,7 @@ function DetailsStep({
                 value={method}
                 checked={paymentMethod === method}
                 onChange={() => setPaymentMethod(method)}
-                className="accent-amaranth-500"
+                className="accent-ember-500"
               />
               <span className="text-sm font-medium text-ink-900">{PAYMENT_LABEL[method]}</span>
             </label>
@@ -507,7 +510,7 @@ function OrderConfirmation({ order }: { order: Order }) {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-sage-500 px-5 py-2.5 font-semibold text-white shadow-card transition hover:bg-sage-600"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-ocean-500 px-5 py-2.5 font-semibold text-white shadow-card transition hover:bg-ocean-600"
       >
         Enviar pedido por WhatsApp
       </a>

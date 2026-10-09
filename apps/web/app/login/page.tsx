@@ -7,6 +7,14 @@ import { api, ApiError } from '@/lib/api';
 import { AuthUser } from '@/lib/types';
 import { useAuth } from '@/lib/auth-context';
 import { Alert } from '@/components/Alert';
+import { translateApiError } from '@/lib/error-messages';
+
+const ROLE_HOME: Record<string, string> = {
+  VETERINARIAN: '/clinic',
+  GROOMER: '/clinic',
+  RECEPTIONIST: '/reception',
+  ADMIN: '/admin',
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,12 +31,10 @@ export default function LoginPage() {
     try {
       const user = await api.post<AuthUser>('/auth/login', { email, password });
       login(user);
-      router.push('/');
+      router.push(ROLE_HOME[user.role] ?? '/');
     } catch (err) {
-      if (err instanceof ApiError && err.code === 'INVALID_CREDENTIALS') {
-        setError('Correo o contraseña incorrectos.');
-      } else if (err instanceof ApiError) {
-        setError(err.message);
+      if (err instanceof ApiError) {
+        setError(translateApiError(err));
       } else {
         setError('No pudimos iniciar sesión. Intenta de nuevo.');
       }
@@ -42,7 +48,7 @@ export default function LoginPage() {
       <h1 className="font-display text-2xl font-semibold text-ink-900">Ingresa a tu cuenta</h1>
       <p className="mt-1 text-sm text-ink-900/60">
         ¿Aún no tienes cuenta?{' '}
-        <Link href="/register" className="font-medium text-amaranth-600 hover:underline">
+        <Link href="/register" className="font-medium text-ember-600 hover:underline">
           Regístrate
         </Link>
       </p>
