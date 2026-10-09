@@ -9,10 +9,14 @@ export interface BookedRange {
   durationMinutes: number;
 }
 
-export interface AvailableSlotsResult {
-  isClosed: boolean;
+export interface BusinessWindow {
   openMinute: number;
   closeMinute: number;
+}
+
+export interface AvailableSlotsResult {
+  isClosed: boolean;
+  windows: BusinessWindow[];
   booked: BookedRange[];
 }
 
