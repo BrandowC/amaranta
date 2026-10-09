@@ -17,8 +17,6 @@ import { ListMyOrdersUseCase } from '../../application/list-my-orders.use-case';
 import { MarkOrderAsPaidUseCase } from '../../application/mark-order-as-paid.use-case';
 
 @ApiTags('sales')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class SalesController {
   constructor(
@@ -45,11 +43,12 @@ export class SalesController {
 
   @Post('in-store')
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.RECEPTIONIST)
   createInStore(@Body() body: InStoreCheckoutRequestDto, @CurrentUser() user: AuthenticatedUser) {
     return this.checkout.execute({
-      customerId: body.customerId,
+      customerId: body.customerId ?? user.userId,
       createdBy: user.userId,
       channel: OrderChannel.IN_STORE,
       items: body.items,
@@ -62,13 +61,16 @@ export class SalesController {
   }
 
   @Post(':orderId/mark-paid')
-  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.RECEPTIONIST)
   markAsPaid(@Param('orderId') orderId: string) {
     return this.markOrderAsPaid.execute({ orderId });
   }
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   listMine(@CurrentUser() user: AuthenticatedUser) {
     return this.listMyOrders.execute({ customerId: user.userId });
   }

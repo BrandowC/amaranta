@@ -67,4 +67,31 @@ export class ProductRepository implements ProductRepositoryPort {
   async saveMany(products: Product[]): Promise<void> {
     await this.repo.save(products.map(ProductMapper.toPersistence));
   }
+
+  async deleteById(id: string): Promise<void> {
+    await this.repo.delete(id);
+  }
+
+  /** Single atomic statement — the DB itself refuses the write if stock would go negative. */
+  async tryDecrementStock(productId: string, quantity: number): Promise<boolean> {
+    const result = await this.repo
+      .createQueryBuilder()
+      .update(ProductOrmEntity)
+      .set({ stockQuantity: () => 'stock_quantity - :qty' })
+      .where('id = :id', { id: productId })
+      .andWhere('stock_quantity >= :qty', { qty: quantity })
+      .setParameter('qty', quantity)
+      .execute();
+    return (result.affected ?? 0) > 0;
+  }
+
+  async incrementStock(productId: string, quantity: number): Promise<void> {
+    await this.repo
+      .createQueryBuilder()
+      .update(ProductOrmEntity)
+      .set({ stockQuantity: () => 'stock_quantity + :qty' })
+      .where('id = :id', { id: productId })
+      .setParameter('qty', quantity)
+      .execute();
+  }
 }

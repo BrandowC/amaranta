@@ -26,7 +26,34 @@ function checkoutParams(overrides: Partial<Parameters<typeof Order.checkout>[0]>
   };
 }
 
+function nextMondayAt(hour: number, minute = 0): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+  d.setHours(hour, minute, 0, 0);
+  return d;
+}
+
 describe('Order', () => {
+  beforeEach(() => {
+    // Pin "now" inside shop hours (Monday 10:00) so every test below is independent of the
+    // wall-clock time it happens to run at — INV-ORDER-008 is exercised in its own tests.
+    jest.useFakeTimers().setSystemTime(nextMondayAt(10));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('cannot be created while the store is closed (INV-ORDER-008)', () => {
+    jest.setSystemTime(nextMondayAt(13)); // 13:00 falls in the lunch closure
+    expect(() => Order.checkout(checkoutParams())).toThrow('INV-ORDER-008');
+  });
+
+  it('can be created right at opening time (INV-ORDER-008)', () => {
+    jest.setSystemTime(nextMondayAt(8));
+    expect(() => Order.checkout(checkoutParams())).not.toThrow();
+  });
+
   it('cannot be created without items', () => {
     expect(() => Order.checkout(checkoutParams({ items: [] }))).toThrow('INV-ORDER-004');
   });
