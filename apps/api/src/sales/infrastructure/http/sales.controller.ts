@@ -49,7 +49,7 @@ export class SalesController {
   @Roles(UserRole.RECEPTIONIST)
   createInStore(@Body() body: InStoreCheckoutRequestDto, @CurrentUser() user: AuthenticatedUser) {
     return this.checkout.execute({
-      customerId: body.customerId,
+      customerId: body.customerId ?? user.userId,
       createdBy: user.userId,
       channel: OrderChannel.IN_STORE,
       items: body.items,
