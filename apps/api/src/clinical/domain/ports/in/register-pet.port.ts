@@ -13,6 +13,8 @@ export interface RegisterPetCommand {
 export interface PetResult {
   petId: string;
   ownerId: string;
+  /** Only populated by lookups that resolve it via Identity (e.g. GetPetUseCase) — not every caller needs it. */
+  ownerName?: string;
   name: string;
   species: string;
   breed?: string;

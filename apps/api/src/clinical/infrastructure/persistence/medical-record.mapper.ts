@@ -8,6 +8,7 @@ export class MedicalRecordMapper {
       petId: row.petId,
       appointmentId: row.appointmentId,
       veterinarianId: row.veterinarianId,
+      symptoms: row.symptoms,
       diagnosis: row.diagnosis,
       treatment: row.treatment ?? undefined,
       notes: row.notes ?? undefined,
@@ -21,6 +22,7 @@ export class MedicalRecordMapper {
     row.petId = record.petId;
     row.appointmentId = record.appointmentId;
     row.veterinarianId = record.veterinarianId;
+    row.symptoms = record.symptoms;
     row.diagnosis = record.diagnosis;
     row.treatment = record.treatment ?? null;
     row.notes = record.notes ?? null;
