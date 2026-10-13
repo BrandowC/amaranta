@@ -5,6 +5,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { IdentityModule } from './identity/identity.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { SalesModule } from './sales/sales.module';
+import { ClinicalModule } from './clinical/clinical.module';
+import { SchedulingModule } from './scheduling/scheduling.module';
 import { SharedModule } from './shared/shared.module';
 import { HealthController } from './health.controller';
 
@@ -26,6 +28,8 @@ import { HealthController } from './health.controller';
     IdentityModule,
     CatalogModule,
     SalesModule,
+    ClinicalModule,
+    SchedulingModule,
   ],
   controllers: [HealthController],
 })

@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api, ApiError } from '@/lib/api';
 import { Order } from '@/lib/types';
 import { Alert } from '@/components/Alert';
+import { translateApiError } from '@/lib/error-messages';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pendiente de pago',
@@ -30,7 +31,7 @@ export default function OrdersPage() {
     api
       .get<Order[]>('/orders', user.accessToken)
       .then(setOrders)
-      .catch((err: ApiError) => setError(err.message));
+      .catch((err: ApiError) => setError(translateApiError(err)));
   }, [user, authLoading, router]);
 
   if (!user) return null;
@@ -54,7 +55,7 @@ export default function OrdersPage() {
         <div key={order.orderId} className="rounded-xl2 bg-white p-5 shadow-card">
           <div className="flex items-center justify-between">
             <span className="font-mono text-sm text-ink-900/50">#{order.orderId.slice(0, 8)}</span>
-            <span className="rounded-full bg-amaranth-50 px-3 py-1 text-xs font-semibold text-amaranth-700">
+            <span className="rounded-full bg-ember-50 px-3 py-1 text-xs font-semibold text-ember-700">
               {STATUS_LABEL[order.status] ?? order.status}
             </span>
           </div>

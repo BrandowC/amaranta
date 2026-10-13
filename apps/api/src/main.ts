@@ -1,4 +1,6 @@
+import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -6,9 +8,10 @@ import { AppModule } from './app.module';
 import { DomainExceptionFilter } from './shared/infrastructure/http/domain-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
 
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
   app.enableCors({ origin: config.get<string>('CORS_ORIGIN', 'http://localhost:3000') });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new DomainExceptionFilter());

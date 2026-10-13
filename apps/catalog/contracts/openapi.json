@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Amaranta Catalog",
+    "version": "1.0.0",
+    "description": "HU-CAT-001 read contract. Reservation endpoints belong to the next block and are not available here."
+  },
+  "servers": [{ "url": "http://localhost:8081" }],
+  "paths": {
+    "/v1/products": {
+      "get": {
+        "operationId": "listProducts",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 1000000, "default": 1 }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 50 }
+          },
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "schema": { "type": "string", "pattern": "^[a-zA-Z0-9._-]{1,100}$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active products, including zero stock, sorted by name then id. Prices are integer COP. Empty pages retain the total count.",
+            "headers": {
+              "x-correlation-id": {
+                "schema": { "type": "string" },
+                "description": "Accepted request ID or generated UUID"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["items", "page", "pageSize", "total"],
+                  "properties": {
+                    "page": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+                    "pageSize": { "type": "integer", "minimum": 1, "maximum": 50 },
+                    "total": { "type": "integer", "minimum": 0 },
+                    "items": {
+                      "type": "array",
+                      "maxItems": 50,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "sku",
+                          "name",
+                          "description",
+                          "category",
+                          "price",
+                          "priceFormatted",
+                          "stockQuantity",
+                          "inStock",
+                          "imageUrl"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                          },
+                          "sku": { "type": "string", "maxLength": 50 },
+                          "name": { "type": "string", "maxLength": 120 },
+                          "description": { "type": "string", "maxLength": 500 },
+                          "category": {
+                            "type": "string",
+                            "enum": ["FOOD", "ACCESSORIES", "HYGIENE", "MEDICATION", "TOYS"]
+                          },
+                          "price": { "type": "integer", "minimum": 1 },
+                          "priceFormatted": { "type": "string" },
+                          "stockQuantity": { "type": "integer", "minimum": 0 },
+                          "inStock": { "type": "boolean" },
+                          "imageUrl": { "type": "string", "maxLength": 500 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid pagination or unknown query parameter" },
+          "500": { "description": "Catalog query unavailable; no database details disclosed" }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "liveness",
+        "responses": { "200": { "description": "Process serving HTTP; does not check database" } }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "readiness",
+        "responses": {
+          "200": { "description": "Owned products table is queryable" },
+          "503": { "description": "Database/schema unavailable" }
+        }
+      }
+    }
+  }
+}

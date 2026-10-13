@@ -3,4 +3,14 @@ dist/
 .next/
 coverage/
 .env
+.env.local
+.env.dev
+.env.qa
+.env.prod
 *.log
+apps/api/uploads/
+keys/
+*.pem
+keys/
+*.tsbuildinfo
+.claude/

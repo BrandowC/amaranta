@@ -5,31 +5,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        amaranth: {
-          50: '#fdf2f6',
-          100: '#fce7ef',
-          200: '#f9c9dc',
-          300: '#f39dbe',
-          400: '#ea6a99',
-          500: '#d6336c', // primary
-          600: '#b8215a',
-          700: '#96184a',
-          800: '#7a173e',
-          900: '#521326',
+        // "Fiery Ocean" palette — primary brand red (fire) + secondary blue (ocean)
+        ember: {
+          50: '#fdf1ee',
+          100: '#fbe0d8',
+          200: '#f3b8ac',
+          300: '#e8887a',
+          400: '#d85a4a',
+          500: '#c41e2e', // primary
+          600: '#a01522',
+          700: '#7a0e17', // headings, high-emphasis text
+          800: '#5c0a10',
+          900: '#3d0709',
         },
-        sage: {
-          50: '#f2f8f2',
-          100: '#e0efe1',
-          400: '#6fb384',
-          500: '#4c9a6a',
-          600: '#3a7d54',
+        ocean: {
+          50: '#eef5fa',
+          100: '#dcebf5',
+          200: '#b7d7ea',
+          300: '#93c0da',
+          400: '#79a9c9',
+          500: '#5c93b8', // secondary actions, success accents
+          600: '#457897',
+          700: '#345d75',
         },
         cream: {
-          50: '#fffaf3',
-          100: '#fef3e7',
+          50: '#fbeeda',
+          100: '#f5e2c4',
         },
         ink: {
-          900: '#241521',
+          900: '#0e2a3d',
         },
       },
       fontFamily: {
@@ -37,7 +41,7 @@ const config: Config = {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 8px 24px -8px rgba(82, 19, 38, 0.18)',
+        card: '0 8px 24px -8px rgba(61, 7, 9, 0.2)',
       },
       borderRadius: {
         xl2: '1.25rem',

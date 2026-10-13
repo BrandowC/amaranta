@@ -6,6 +6,7 @@ import { api, ApiError } from '@/lib/api';
 import { AuthUser } from '@/lib/types';
 import { useAuth } from '@/lib/auth-context';
 import { Alert } from '@/components/Alert';
+import { translateApiError } from '@/lib/error-messages';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function RegisterPage() {
       if (err instanceof ApiError && err.code === 'EMAIL_ALREADY_REGISTERED') {
         setError('Ya existe una cuenta con ese correo. Intenta iniciar sesión.');
       } else if (err instanceof ApiError) {
-        setError(err.message);
+        setError(translateApiError(err));
       } else {
         setError('No pudimos crear tu cuenta. Intenta de nuevo.');
       }
@@ -41,7 +42,10 @@ export default function RegisterPage() {
   return (
     <div className="mx-auto max-w-md">
       <h1 className="font-display text-2xl font-semibold text-ink-900">Crea tu cuenta</h1>
-      <p className="mt-1 text-sm text-ink-900/60">Regístrate para comprar y agendar citas para tu mascota.</p>
+      <p className="mt-1 text-sm text-ink-900/60">
+        No necesitas cuenta para comprar — regístrate solo si quieres agendar citas o llevar el historial médico de
+        tu mascota.
+      </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <Field label="Nombre completo" htmlFor="fullName">

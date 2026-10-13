@@ -32,7 +32,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl2 bg-white shadow-card ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-lg">
-      <div className="relative aspect-square overflow-hidden bg-amaranth-50">
+      <div className="relative aspect-square overflow-hidden bg-ember-50">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={imageRef}
@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
           loading="lazy"
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
-        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-amaranth-700">
+        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-ember-700">
           {CATEGORY_LABEL[product.category] ?? product.category}
         </span>
         {!product.inStock && (
@@ -55,11 +55,11 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="font-display text-base font-semibold text-ink-900">{product.name}</h3>
         <p className="line-clamp-2 flex-1 text-sm text-ink-900/60">{product.description}</p>
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-lg font-bold text-amaranth-700">{product.priceFormatted}</span>
+          <span className="text-lg font-bold text-ember-700">{product.priceFormatted}</span>
           <button
             onClick={handleAdd}
             disabled={!product.inStock}
-            className="rounded-full bg-sage-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sage-600 disabled:cursor-not-allowed disabled:bg-ink-900/20"
+            className="rounded-full bg-ocean-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-ocean-600 disabled:cursor-not-allowed disabled:bg-ink-900/20"
           >
             {justAdded ? '¡Agregado!' : 'Agregar'}
           </button>
