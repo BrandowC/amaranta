@@ -12,62 +12,100 @@ export function Navbar() {
   const { registerCartTarget } = useFlyToCart();
   const cartRef = useRef<HTMLSpanElement>(null);
 
+  // Staff accounts (RECEPTIONIST/VETERINARIAN/GROOMER/ADMIN) manage the clinic or the
+  // catalog — they don't shop, so the shop/cart/orders/pets/appointments nav is only
+  // relevant to guests (who can still browse before logging in) and CUSTOMER accounts.
+  const isShopperView = !user || user.role === 'CUSTOMER';
+
   useEffect(() => {
     registerCartTarget(cartRef.current);
   }, [registerCartTarget]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-amaranth-100 bg-cream-50/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-ember-100 bg-cream-50/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl" aria-hidden>
             🌸
           </span>
-          <span className="font-display text-xl font-semibold text-amaranth-700">Amaranta</span>
+          <span className="font-display text-xl font-semibold text-ember-700">Amaranta</span>
         </Link>
 
         <nav className="flex items-center gap-4 text-sm font-medium text-ink-900/80">
-          <Link href="/" className="hover:text-amaranth-600">
-            Tienda
-          </Link>
-          {user && (
-            <Link href="/orders" className="hover:text-amaranth-600">
+          {isShopperView && (
+            <Link href="/" className="hover:text-ember-600">
+              Tienda
+            </Link>
+          )}
+          {user && isShopperView && (
+            <Link href="/orders" className="hover:text-ember-600">
               Mis pedidos
             </Link>
           )}
-          <Link
-            href="/cart"
-            className="relative rounded-full bg-amaranth-500 px-4 py-2 text-white shadow-card transition hover:bg-amaranth-600"
-          >
-            <span ref={cartRef} className="inline-flex items-center gap-1.5">
-              <span aria-hidden>🛒</span>
-              Carrito
-            </span>
-            {totalItems > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-sage-500 text-xs font-bold text-white">
-                {totalItems}
+          {user && isShopperView && (
+            <Link href="/pets" className="hover:text-ember-600">
+              Mis mascotas
+            </Link>
+          )}
+          {user && isShopperView && (
+            <Link href="/appointments" className="hover:text-ember-600">
+              Mis citas
+            </Link>
+          )}
+          {user && (user.role === 'VETERINARIAN' || user.role === 'GROOMER') && (
+            <Link href="/clinic" className="hover:text-ocean-600">
+              Clínica
+            </Link>
+          )}
+          {user && user.role === 'ADMIN' && (
+            <Link href="/admin" className="hover:text-ocean-600">
+              Admin
+            </Link>
+          )}
+          {user && user.role === 'RECEPTIONIST' && (
+            <Link href="/reception" className="hover:text-ocean-600">
+              Recepción
+            </Link>
+          )}
+          {isShopperView && (
+            <Link
+              href="/cart"
+              className="relative rounded-full bg-ember-500 px-4 py-2 text-white shadow-card transition hover:bg-ember-600"
+            >
+              <span ref={cartRef} className="inline-flex items-center gap-1.5">
+                <span aria-hidden>🛒</span>
+                Carrito
               </span>
-            )}
-          </Link>
+              {totalItems > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-ocean-500 text-xs font-bold text-white">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+          )}
 
           {user ? (
             <div className="flex items-center gap-3">
               <span className="hidden text-ink-900/70 sm:inline">Hola, {user.fullName.split(' ')[0]}</span>
               <button
                 onClick={logout}
-                className="rounded-full border border-amaranth-200 px-3 py-1.5 text-amaranth-700 hover:bg-amaranth-50"
+                className={
+                  isShopperView
+                    ? 'rounded-full border border-ember-200 px-3 py-1.5 text-ember-700 hover:bg-ember-50'
+                    : 'rounded-full border border-ocean-200 px-3 py-1.5 text-ocean-700 hover:bg-ocean-50'
+                }
               >
                 Salir
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link href="/login" className="rounded-full px-3 py-1.5 text-amaranth-700 hover:bg-amaranth-50">
+              <Link href="/login" className="rounded-full px-3 py-1.5 text-ember-700 hover:bg-ember-50">
                 Ingresar
               </Link>
               <Link
                 href="/register"
-                className="rounded-full border border-amaranth-500 px-3 py-1.5 text-amaranth-600 hover:bg-amaranth-50"
+                className="rounded-full border border-ember-500 px-3 py-1.5 text-ember-600 hover:bg-ember-50"
               >
                 Crear cuenta
               </Link>
