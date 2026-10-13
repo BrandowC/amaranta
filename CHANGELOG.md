@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.0 — Integrated monolith baseline
+
+- Atomic stock reservation, idempotent release, product deletion and image upload (HU-CAT-002).
+- Checkout compensates reserved stock on failure (HU-SALES-001).
+- Business-hour windows and available slots for scheduling.
+- Public pet medical history, pets directory and symptoms in clinical.
+- Staff and public web screens with slot picker and QR code.
+- RS256 JWT signing (ADR-009); JWT keys, tsbuildinfo and local state ignored.
+- Not included: independent Sales, Saga, Outbox, RabbitMQ and worker. See release.md.
+
 ## Unreleased — HU-CAT-001
 
 - Baseline por SHA, evaluación MVP2 A–Z, alcance, backlog y arquitectura documentados.
