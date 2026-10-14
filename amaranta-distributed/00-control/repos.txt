@@ -1,0 +1,25 @@
+# Repositorios autorizados para el corte actual
+
+# TRANSVERSALES
+amaranta-shop-api-gateway
+amaranta-shop-worker
+amaranta-shop-workflow
+amaranta-shop-front
+
+# CATALOG
+amaranta-shop-catalog-db
+amaranta-shop-catalog-api
+amaranta-shop-catalog-portal
+
+# SALES
+amaranta-shop-sales-db
+amaranta-shop-sales-api
+amaranta-shop-sales-portal
+
+# YA EXISTENTES
+amaranta-shop-infra-postgres
+amaranta-shop-infra-mongo
+amaranta-shop-security
+
+# Nota
+# El registro es dinámico. Si se abre un nuevo bounded context, se agrega la nueva tanda y no se mantiene un inventario fijo de 17 repositorios.

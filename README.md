@@ -18,6 +18,13 @@ PostgreSQL, y los puntos de integración con otros contextos pasan siempre por u
 [`docs/path-to-microservices.md`](./docs/path-to-microservices.md) para el ejercicio de
 extracción.
 
+El registro de repositorios ya no es un manifiesto fijo de 17 elementos: la estructura operativa
+actual se mantiene en [`amaranta-distributed/`](./amaranta-distributed/) y refleja un scope
+**dinámico** para Catalog y Sales, con expansión solo cuando el profesor autoriza un nuevo
+bounded context. La regla de integración hoy es que `Sales` consulta a `Catalog` por contrato y
+no por lectura directa de base de datos; la ADR correspondiente queda en
+[`docs/adr/ADR-011-sales-catalog-query-contract.md`](./docs/adr/ADR-011-sales-catalog-query-contract.md).
+
 ## Historias de usuario implementadas
 
 | HU    | Contexto          | Descripción                                         |
