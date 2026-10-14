@@ -4,6 +4,7 @@ from dataclasses import asdict
 from contextvars import ContextVar
 from threading import RLock
 from typing import Protocol
+from time import sleep
 
 from .domain import CatalogError, Product
 
@@ -97,13 +98,20 @@ class MongoProductRepository:
         )
 
     def atomic(self, operation):
-        with self._client.start_session() as session:
-            token = _mongo_session.set(session)
-            try:
-                with session.start_transaction():
-                    return operation(session)
-            finally:
-                _mongo_session.reset(token)
+        for attempt in range(3):
+            with self._client.start_session() as session:
+                token = _mongo_session.set(session)
+                try:
+                    with session.start_transaction():
+                        return operation(session)
+                except Exception as error:
+                    has_label = getattr(error, "has_error_label", None)
+                    is_transient = has_label("TransientTransactionError") if callable(has_label) else False
+                    if not is_transient or attempt == 2:
+                        raise
+                    sleep(0.05 * (attempt + 1))
+                finally:
+                    _mongo_session.reset(token)
 
     @staticmethod
     def _from_document(document: dict) -> Product:

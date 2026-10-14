@@ -1,0 +1,14 @@
+{
+  "runId": "20261014T1735-67be2dd",
+  "phase": "M0",
+  "commit": "67be2dd",
+  "branch": "research/degree-project-rigor",
+  "dataset": "synthetic-D1",
+  "seed": "amaranta-m0-20261014",
+  "commands": [
+    "python -m unittest discover -s tests -v",
+    "docker compose -f docker-compose.distributed.yml config --quiet"
+  ],
+  "result": "blocked",
+  "limitation": "Docker Desktop Linux engine was unavailable; no real service execution was claimed."
+}

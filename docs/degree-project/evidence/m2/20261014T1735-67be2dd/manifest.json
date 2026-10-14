@@ -1,0 +1,16 @@
+{
+  "runId": "20261014T1735-67be2dd",
+  "phase": "M2",
+  "commit": "67be2dd",
+  "branch": "research/degree-project-rigor",
+  "scenarios": ["E2", "E3", "E4"],
+  "dataset": "synthetic-D2-D3",
+  "seed": "amaranta-m2-20261014",
+  "expected": {
+    "E2": "one effective stock decrement for repeated reservationId",
+    "E3": "one winner for the last unit and no negative stock",
+    "E4": "no decrement when any mult-item line cannot be reserved"
+  },
+  "result": "blocked",
+  "limitation": "Docker Desktop Linux engine was unavailable; MongoDB replica-set evidence is pending."
+}

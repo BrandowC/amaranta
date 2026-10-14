@@ -1,0 +1,15 @@
+{
+  "runId": "20261014T1735-67be2dd",
+  "phase": "M1",
+  "commit": "67be2dd",
+  "branch": "research/degree-project-rigor",
+  "dataset": "synthetic-D1",
+  "commands": [
+    "docker compose -f docker-compose.distributed.yml config --quiet",
+    "GET /health/live",
+    "GET /health/ready",
+    "GET /v1/products"
+  ],
+  "result": "blocked",
+  "limitation": "The real Catalog API and MongoDB could not be started because Docker Desktop was unavailable."
+}

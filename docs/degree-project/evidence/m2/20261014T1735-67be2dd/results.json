@@ -1,0 +1,16 @@
+{
+  "deterministic_checks": {
+    "catalog_unit_tests": {"passed": 10, "failed": 0},
+    "sales_contract_tests": {"passed": 8, "failed": 0},
+    "api_build": "passed",
+    "compose_config": "passed"
+  },
+  "real_service_scenarios": {
+    "E2": "not_executed",
+    "E3": "not_executed",
+    "E4": "not_executed"
+  },
+  "mongo_inventory_before_after": "not_recorded",
+  "gate": "NOT_APPROVED",
+  "approval_rule": "Do not advance to M3 until E2, E3 and E4 run against MongoDB replica set."
+}

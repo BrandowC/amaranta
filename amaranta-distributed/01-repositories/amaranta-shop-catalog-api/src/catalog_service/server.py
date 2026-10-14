@@ -52,6 +52,13 @@ def create_handler(service: CatalogService):
                 except (ValueError, CatalogError) as error:
                     self._send(400, {"code": "INVALID_PAGINATION", "message": str(error)}, correlation_id)
                 return
+            if parsed.path.startswith("/v1/stock/reservations/"):
+                reservation_id = parsed.path.rsplit("/", 1)[-1]
+                try:
+                    self._send(200, service.reservation_status(reservation_id), correlation_id)
+                except CatalogError as error:
+                    self._send(error.status, {"code": error.code, "message": error.message}, correlation_id)
+                return
             self._send(404, {"code": "NOT_FOUND", "message": "route not found"}, correlation_id)
 
         def do_POST(self) -> None:

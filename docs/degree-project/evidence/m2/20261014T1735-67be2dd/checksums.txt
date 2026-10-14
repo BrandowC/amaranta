@@ -1,0 +1,2 @@
+sha256 checksums are generated only after MongoDB before/after snapshots,
+service logs, and scenario results are present.

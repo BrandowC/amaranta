@@ -25,23 +25,23 @@ class CatalogService:
         self._validate_reservation_id(reservation_id)
         if not items:
             raise CatalogError("INV-ORDER-004", "an order must have at least one item")
-        existing = self.repository.reservation(reservation_id)
         requested = self._canonical_items(items)
-        if existing:
-            if existing["items"] != requested:
-                raise CatalogError("RESERVATION_ID_REUSED", "reservationId cannot be reused with different items", 409)
-            if existing["status"] in {"RESERVED", "CONFIRMED"}:
-                return existing["lines"]
-            raise CatalogError("RESERVATION_NOT_ACTIVE", "reservation is not active", 409)
-
-        products = []
-        for item in requested:
-            product = self.repository.by_id(item.get("productId"))
-            if product is None:
-                raise CatalogError("PRODUCT_NOT_FOUND", f"Product {item.get('productId')} does not exist", 404)
-            products.append((product, item.get("quantity")))
 
         def operation(*_):
+            existing = self.repository.reservation(reservation_id)
+            if existing:
+                if existing["items"] != requested:
+                    raise CatalogError("RESERVATION_ID_REUSED", "reservationId cannot be reused with different items", 409)
+                if existing["status"] in {"RESERVED", "CONFIRMED"}:
+                    return existing["lines"]
+                raise CatalogError("RESERVATION_NOT_ACTIVE", "reservation is not active", 409)
+
+            products = []
+            for item in requested:
+                product = self.repository.by_id(item.get("productId"))
+                if product is None:
+                    raise CatalogError("PRODUCT_NOT_FOUND", f"Product {item.get('productId')} does not exist", 404)
+                products.append((product, item.get("quantity")))
             reserved: list[tuple[Product, int]] = []
             try:
                 for product, quantity in products:
@@ -74,15 +74,15 @@ class CatalogService:
 
     def release(self, reservation_id: str) -> None:
         self._validate_reservation_id(reservation_id)
-        reservation = self.repository.reservation(reservation_id)
-        if reservation is None:
-            raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
-        if reservation["status"] in {"RELEASED", "EXPIRED"}:
-            return
-        if reservation["status"] == "CONFIRMED":
-            raise CatalogError("RESERVATION_NOT_ACTIVE", "confirmed reservation cannot be released", 409)
 
         def operation(*_):
+            reservation = self.repository.reservation(reservation_id)
+            if reservation is None:
+                raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
+            if reservation["status"] in {"RELEASED", "EXPIRED"}:
+                return
+            if reservation["status"] == "CONFIRMED":
+                raise CatalogError("RESERVATION_NOT_ACTIVE", "confirmed reservation cannot be released", 409)
             for item in reservation["items"]:
                 product = self.repository.by_id(item["productId"])
                 if product is None:
@@ -96,15 +96,15 @@ class CatalogService:
 
     def confirm(self, reservation_id: str) -> None:
         self._validate_reservation_id(reservation_id)
-        reservation = self.repository.reservation(reservation_id)
-        if reservation is None:
-            raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
-        if reservation["status"] == "CONFIRMED":
-            return
-        if reservation["status"] != "RESERVED":
-            raise CatalogError("RESERVATION_NOT_ACTIVE", "only a reserved reservation can be confirmed", 409)
 
         def operation(*_):
+            reservation = self.repository.reservation(reservation_id)
+            if reservation is None:
+                raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
+            if reservation["status"] == "CONFIRMED":
+                return
+            if reservation["status"] != "RESERVED":
+                raise CatalogError("RESERVATION_NOT_ACTIVE", "only a reserved reservation can be confirmed", 409)
             reservation["status"] = "CONFIRMED"
             self.repository.save_reservation(reservation)
 
@@ -112,15 +112,15 @@ class CatalogService:
 
     def expire(self, reservation_id: str) -> None:
         self._validate_reservation_id(reservation_id)
-        reservation = self.repository.reservation(reservation_id)
-        if reservation is None:
-            raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
-        if reservation["status"] == "EXPIRED":
-            return
-        if reservation["status"] != "RESERVED":
-            raise CatalogError("RESERVATION_NOT_ACTIVE", "only a reserved reservation can expire", 409)
 
         def operation(*_):
+            reservation = self.repository.reservation(reservation_id)
+            if reservation is None:
+                raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
+            if reservation["status"] == "EXPIRED":
+                return
+            if reservation["status"] != "RESERVED":
+                raise CatalogError("RESERVATION_NOT_ACTIVE", "only a reserved reservation can expire", 409)
             for item in reservation["items"]:
                 product = self.repository.by_id(item["productId"])
                 if product is None:
@@ -131,6 +131,13 @@ class CatalogService:
             self.repository.save_reservation(reservation)
 
         self.repository.atomic(operation)
+
+    def reservation_status(self, reservation_id: str) -> dict:
+        self._validate_reservation_id(reservation_id)
+        reservation = self.repository.reservation(reservation_id)
+        if reservation is None:
+            raise CatalogError("RESERVATION_NOT_FOUND", "reservation does not exist", 404)
+        return reservation
 
     @staticmethod
     def _validate_reservation_id(reservation_id: str) -> None:

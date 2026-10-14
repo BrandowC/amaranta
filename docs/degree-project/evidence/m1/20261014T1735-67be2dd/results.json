@@ -1,0 +1,10 @@
+{
+  "checks": {
+    "compose_config": "passed",
+    "catalog_live": "not_executed",
+    "catalog_ready": "not_executed",
+    "catalog_products": "not_executed",
+    "single_inventory_writer": "design_verified_only"
+  },
+  "gate": "NOT_APPROVED"
+}

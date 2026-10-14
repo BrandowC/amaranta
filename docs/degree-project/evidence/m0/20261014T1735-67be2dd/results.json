@@ -1,0 +1,10 @@
+{
+  "phase": "M0",
+  "checks": {
+    "catalog_unit_tests": {"passed": 10, "failed": 0},
+    "compose_config": "passed",
+    "runtime": "not_executed"
+  },
+  "gate": "NOT_APPROVED",
+  "reason": "M0 requires a reproducible runtime execution."
+}
