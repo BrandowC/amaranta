@@ -1,0 +1,93 @@
+services:
+  catalog-mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_DATABASE: catalog
+    ports:
+      - "127.0.0.1:${CATALOG_MONGO_PORT:-27017}:27017"
+    volumes:
+      - catalog_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  catalog-api:
+    build:
+      context: ./amaranta-distributed/01-repositories/amaranta-shop-catalog-api
+    environment:
+      CATALOG_HOST: 0.0.0.0
+      CATALOG_PORT: 8081
+      CATALOG_MONGO_URI: mongodb://catalog-mongo:27017
+      CATALOG_MONGO_DATABASE: catalog
+    ports:
+      - "127.0.0.1:${CATALOG_API_PORT:-8082}:8081"
+    depends_on:
+      catalog-mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8081/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: amaranta
+      POSTGRES_PASSWORD: amaranta
+      POSTGRES_DB: amaranta
+    ports:
+      - "127.0.0.1:${API_DB_PORT:-55435}:5432"
+    volumes:
+      - api_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amaranta -d amaranta"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      CORS_ORIGIN: http://localhost:3000
+      DATABASE_URL: postgresql://amaranta:amaranta@api-db:5432/amaranta
+      CATALOG_SERVICE_URL: http://catalog-api:8081
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY in your .env, see scripts/dev-keys.sh}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:?set JWT_PUBLIC_KEY in your .env, see scripts/dev-keys.sh}
+      JWT_EXPIRES_IN: 3600s
+    ports:
+      - "127.0.0.1:${API_PORT:-8083}:8080"
+    depends_on:
+      api-db:
+        condition: service_healthy
+      catalog-api:
+        condition: service_healthy
+
+  sales-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sales
+      POSTGRES_PASSWORD: ${SALES_DB_PASSWORD:-sales_dev_password}
+      POSTGRES_DB: sales_db
+    ports:
+      - "127.0.0.1:${SALES_DB_PORT:-55434}:5432"
+    volumes:
+      - sales_pgdata:/var/lib/postgresql/data
+      - ./amaranta-distributed/01-repositories/amaranta-shop-sales-db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sales -d sales_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  catalog_mongo_data:
+  api_pgdata:
+  sales_pgdata:

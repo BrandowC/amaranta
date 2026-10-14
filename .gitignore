@@ -13,4 +13,7 @@ keys/
 *.pem
 keys/
 *.tsbuildinfo
+__pycache__/
+.pytest_cache/
+target/
 .claude/

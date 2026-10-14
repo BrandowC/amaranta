@@ -1,10 +1,20 @@
 # From monolith to microservices — extraction guide
 
+This document is aligned with the current C2 release context: the authorized scope is now
+**dynamic**, and the active bounded contexts are currently **Catalog** and **Sales**. We no longer
+maintain a fixed registry of 17 repositories; instead the registry grows only when the professor
+opens a new bounded context.
+
 This document explains, module by module, what would change to split `identity`, `catalog`,
 `sales`, `clinical` and `scheduling` into the microservices already sketched out in
 `amaranta-shop-docs/09-microservices/`. The idea is that this repo's monolith **is already cut
 along the right seams** — extracting a module is (almost) just moving folders and swapping
-adapters, not redesigning the domain.
+adapters, not redesigning the domain. In the current cut, the key practical rule is:
+
+- `catalog-api` is Python and starts with TDD;
+- `sales-api` is Java on PostgreSQL;
+- the extracted service exists in its repository from the first commit;
+- the Sales → Catalog integration must happen through an explicit contract, not direct DB reads.
 
 ## Why it's already "pre-cut"
 
