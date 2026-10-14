@@ -38,7 +38,7 @@ Ya están trazados:
 python -m unittest discover -s amaranta-distributed/01-repositories/amaranta-shop-catalog-api/tests -v
 python -m compileall -q amaranta-distributed/01-repositories/amaranta-shop-catalog-api/src
 docker compose -f docker-compose.distributed.yml config
-docker compose -f docker-compose.distributed.yml up --build -d --wait catalog-mongo catalog-api
+docker compose -f docker-compose.distributed.yml up --build -d --wait api-db catalog-mongo catalog-api api
 Invoke-RestMethod http://localhost:8082/health/live
 Invoke-RestMethod http://localhost:8082/health/ready
 Invoke-RestMethod http://localhost:8082/v1/products
@@ -50,9 +50,11 @@ La API general selecciona el adaptador de red con:
 CATALOG_SERVICE_URL=http://catalog-api:8081
 ```
 
-Cuando la variable existe, Sales publica reservas y liberaciones mediante el
-contrato HTTP versionado y propaga un `x-correlation-id`. Sin la variable se
-mantiene el adaptador en proceso para no romper el desarrollo legacy.
+En el stack distribuido, `api` publica el API general en `localhost:8083` y
+`catalog-api` permanece interno en `catalog-api:8081`. Sales publica reservas y
+liberaciones mediante el contrato HTTP versionado y propaga un
+`x-correlation-id`. Sin la variable se mantiene el adaptador en proceso para no
+romper el desarrollo legacy.
 
 ## Límites honestos
 

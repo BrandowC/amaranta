@@ -71,7 +71,8 @@
   <pre><code>python -m unittest discover -s amaranta-distributed/01-repositories/amaranta-shop-catalog-api/tests -v
 python -m compileall -q amaranta-distributed/01-repositories/amaranta-shop-catalog-api/src
 docker compose -f docker-compose.distributed.yml config
-docker compose -f docker-compose.distributed.yml up --build -d --wait catalog-mongo catalog-api
+docker compose -f docker-compose.distributed.yml up --build -d --wait api-db catalog-mongo catalog-api api
+Invoke-RestMethod http://localhost:8083/health
 Invoke-RestMethod http://localhost:8082/health/live
 Invoke-RestMethod http://localhost:8082/health/ready
 Invoke-RestMethod http://localhost:8082/v1/products</code></pre>

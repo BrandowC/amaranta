@@ -33,6 +33,43 @@ services:
       retries: 10
       start_period: 10s
 
+  api-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: amaranta
+      POSTGRES_PASSWORD: amaranta
+      POSTGRES_DB: amaranta
+    ports:
+      - "127.0.0.1:${API_DB_PORT:-55435}:5432"
+    volumes:
+      - api_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amaranta -d amaranta"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      CORS_ORIGIN: http://localhost:3000
+      DATABASE_URL: postgresql://amaranta:amaranta@api-db:5432/amaranta
+      CATALOG_SERVICE_URL: http://catalog-api:8081
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?set JWT_PRIVATE_KEY in your .env, see scripts/dev-keys.sh}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:?set JWT_PUBLIC_KEY in your .env, see scripts/dev-keys.sh}
+      JWT_EXPIRES_IN: 3600s
+    ports:
+      - "127.0.0.1:${API_PORT:-8083}:8080"
+    depends_on:
+      api-db:
+        condition: service_healthy
+      catalog-api:
+        condition: service_healthy
+
   sales-db:
     image: postgres:16
     environment:
@@ -52,4 +89,5 @@ services:
 
 volumes:
   catalog_mongo_data:
+  api_pgdata:
   sales_pgdata:
