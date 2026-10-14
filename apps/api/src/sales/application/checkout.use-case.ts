@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Money } from '../../shared/domain/value-objects/money.vo';
+import { randomUUID } from 'crypto';
 import { EVENT_PUBLISHER_PORT, EventPublisherPort } from '../../shared/domain/ports/event-publisher.port';
 import { Order } from '../domain/entities/order.entity';
 import { CheckoutCommand, CheckoutResult, CheckoutUseCasePort } from '../domain/ports/in/checkout.port';
@@ -18,7 +19,8 @@ export class CheckoutUseCase implements CheckoutUseCasePort {
   async execute(command: CheckoutCommand): Promise<CheckoutResult> {
     // 1. Ask Catalog to validate and reserve stock (sync call today, REST tomorrow).
     const requested = command.items.map((item) => ({ productId: item.productId, quantity: item.quantity }));
-    const reservedLines = await this.productStock.reserve(requested);
+    const reservationId = command.reservationId ?? randomUUID();
+    const reservedLines = await this.productStock.reserve(reservationId, requested);
 
     // 2-3. Build the aggregate and persist it. Anything that fails from here until the order is
     // saved gives the reservation back: a rejected checkout must leave every stock untouched.
@@ -44,7 +46,7 @@ export class CheckoutUseCase implements CheckoutUseCasePort {
       });
       await this.orderRepository.save(order);
     } catch (error) {
-      await this.productStock.release(requested);
+      await this.productStock.release(reservationId);
       throw error;
     }
 

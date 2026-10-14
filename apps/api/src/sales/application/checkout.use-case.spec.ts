@@ -22,11 +22,11 @@ class InMemoryOrderRepository implements OrderRepositoryPort {
 }
 
 class FakeProductStockAdapter implements ProductStockPort {
-  reserved: StockItemRequest[][] = [];
-  released: StockItemRequest[][] = [];
+  reserved: Array<{ reservationId: string; items: StockItemRequest[] }> = [];
+  released: string[] = [];
 
-  async reserve(items: StockItemRequest[]): Promise<ReservedStockLine[]> {
-    this.reserved.push(items);
+  async reserve(reservationId: string, items: StockItemRequest[]): Promise<ReservedStockLine[]> {
+    this.reserved.push({ reservationId, items });
     return items.map((item) => ({
       productId: item.productId,
       productName: `Product ${item.productId}`,
@@ -35,8 +35,8 @@ class FakeProductStockAdapter implements ProductStockPort {
     }));
   }
 
-  async release(items: StockItemRequest[]): Promise<void> {
-    this.released.push(items);
+  async release(reservationId: string): Promise<void> {
+    this.released.push(reservationId);
   }
 }
 
@@ -122,7 +122,7 @@ describe('CheckoutUseCase', () => {
         code: 'INV-ORDER-006',
       });
 
-      expect(productStock.released).toEqual(productStock.reserved);
+      expect(productStock.released).toEqual([productStock.reserved[0].reservationId]);
       expect(orderRepo.orders).toHaveLength(0);
       expect(eventPublisher.events).toHaveLength(0);
     });
@@ -134,7 +134,7 @@ describe('CheckoutUseCase', () => {
       await expect(useCase.execute(validCommand)).rejects.toMatchObject({ code: 'INV-ORDER-008' });
 
       expect(productStock.reserved).toHaveLength(1);
-      expect(productStock.released).toEqual(productStock.reserved);
+      expect(productStock.released).toEqual([productStock.reserved[0].reservationId]);
     });
 
     it('releases the reservation when the same product appears on two lines (INV-ORDER-003)', async () => {
@@ -146,7 +146,7 @@ describe('CheckoutUseCase', () => {
 
       await expect(useCase.execute({ ...validCommand, items })).rejects.toMatchObject({ code: 'INV-ORDER-003' });
 
-      expect(productStock.released).toEqual([items]);
+      expect(productStock.released).toEqual([productStock.reserved[0].reservationId]);
     });
 
     it('releases the reservation when saving the order fails', async () => {
@@ -155,7 +155,7 @@ describe('CheckoutUseCase', () => {
 
       await expect(useCase.execute(validCommand)).rejects.toThrow('connection lost');
 
-      expect(productStock.released).toEqual(productStock.reserved);
+      expect(productStock.released).toEqual([productStock.reserved[0].reservationId]);
       expect(eventPublisher.events).toHaveLength(0);
     });
 

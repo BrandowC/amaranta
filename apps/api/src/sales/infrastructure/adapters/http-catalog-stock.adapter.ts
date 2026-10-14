@@ -21,16 +21,16 @@ type CatalogResponse = {
 export class HttpCatalogStockAdapter implements ProductStockPort {
   constructor(private readonly baseUrl: string) {}
 
-  async reserve(items: StockItemRequest[]): Promise<ReservedStockLine[]> {
-    const response = await this.request('/v1/stock/reservations', items);
+  async reserve(reservationId: string, items: StockItemRequest[]): Promise<ReservedStockLine[]> {
+    const response = await this.request('/v1/stock/reservations', reservationId, items);
     return response.items ?? [];
   }
 
-  async release(items: StockItemRequest[]): Promise<void> {
-    await this.request('/v1/stock/releases', items);
+  async release(reservationId: string): Promise<void> {
+    await this.request('/v1/stock/releases', reservationId, []);
   }
 
-  private async request(path: string, items: StockItemRequest[]): Promise<CatalogResponse> {
+  private async request(path: string, reservationId: string, items: StockItemRequest[]): Promise<CatalogResponse> {
     let response: Response;
     try {
       response = await fetch(new URL(path, this.baseUrl), {
@@ -39,7 +39,7 @@ export class HttpCatalogStockAdapter implements ProductStockPort {
           'content-type': 'application/json',
           'x-correlation-id': randomUUID(),
         },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ reservationId, items }),
       });
     } catch (error) {
       const detail = error instanceof Error ? `: ${error.message}` : '';

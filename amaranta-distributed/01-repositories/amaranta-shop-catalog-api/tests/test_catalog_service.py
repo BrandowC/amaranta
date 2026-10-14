@@ -28,19 +28,53 @@ class CatalogServiceTddTests(unittest.TestCase):
             self.service.list_products(1, 51)
 
     def test_reserves_stock_and_returns_sales_snapshot(self) -> None:
-        result = self.service.reserve([{"productId": "2", "quantity": 2}])
+        result = self.service.reserve("reservation-1", [{"productId": "2", "quantity": 2}])
         self.assertEqual(result[0]["unitPriceAmount"], 12500)
         self.assertEqual(self.repository.by_id("2").stock_quantity, 1)
 
     def test_failed_multi_item_reservation_compensates_previous_items(self) -> None:
         with self.assertRaises(CatalogError):
-            self.service.reserve([{"productId": "2", "quantity": 2}, {"productId": "1", "quantity": 1}])
+            self.service.reserve("reservation-2", [{"productId": "2", "quantity": 2}, {"productId": "1", "quantity": 1}])
         self.assertEqual(self.repository.by_id("2").stock_quantity, 3)
 
     def test_releases_reserved_stock(self) -> None:
-        self.service.reserve([{"productId": "2", "quantity": 2}])
-        self.service.release([{"productId": "2", "quantity": 2}])
+        self.service.reserve("reservation-3", [{"productId": "2", "quantity": 2}])
+        self.service.release("reservation-3")
         self.assertEqual(self.repository.by_id("2").stock_quantity, 3)
+
+    def test_repeating_reservation_is_idempotent(self) -> None:
+        first = self.service.reserve("same-id", [{"productId": "2", "quantity": 2}])
+        second = self.service.reserve("same-id", [{"productId": "2", "quantity": 2}])
+        self.assertEqual(first, second)
+        self.assertEqual(self.repository.by_id("2").stock_quantity, 1)
+
+    def test_reusing_reservation_id_with_different_items_is_rejected(self) -> None:
+        self.service.reserve("same-id", [{"productId": "2", "quantity": 1}])
+        with self.assertRaises(CatalogError) as context:
+            self.service.reserve("same-id", [{"productId": "2", "quantity": 2}])
+        self.assertEqual(context.exception.code, "RESERVATION_ID_REUSED")
+
+    def test_release_is_idempotent(self) -> None:
+        self.service.reserve("same-id", [{"productId": "2", "quantity": 2}])
+        self.service.release("same-id")
+        self.service.release("same-id")
+        self.assertEqual(self.repository.by_id("2").stock_quantity, 3)
+
+    def test_confirmation_is_idempotent_and_blocks_release(self) -> None:
+        self.service.reserve("confirmed-id", [{"productId": "2", "quantity": 2}])
+        self.service.confirm("confirmed-id")
+        self.service.confirm("confirmed-id")
+        with self.assertRaises(CatalogError) as context:
+            self.service.release("confirmed-id")
+        self.assertEqual(context.exception.code, "RESERVATION_NOT_ACTIVE")
+        self.assertEqual(self.repository.reservation("confirmed-id")["status"], "CONFIRMED")
+
+    def test_expiration_releases_stock_and_is_idempotent(self) -> None:
+        self.service.reserve("expired-id", [{"productId": "2", "quantity": 2}])
+        self.service.expire("expired-id")
+        self.service.expire("expired-id")
+        self.assertEqual(self.repository.by_id("2").stock_quantity, 3)
+        self.assertEqual(self.repository.reservation("expired-id")["status"], "EXPIRED")
 
 
 if __name__ == "__main__":

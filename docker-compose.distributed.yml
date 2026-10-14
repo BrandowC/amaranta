@@ -1,6 +1,7 @@
 services:
   catalog-mongo:
     image: mongo:7
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     environment:
       MONGO_INITDB_DATABASE: catalog
     ports:
@@ -8,10 +9,19 @@ services:
     volumes:
       - catalog_mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 }).ok"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  catalog-mongo-init:
+    image: mongo:7
+    depends_on:
+      catalog-mongo:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: ["mongosh", "--host", "catalog-mongo:27017", "--quiet", "--eval"]
+    command: ["try { rs.status() } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'catalog-mongo:27017'}]}) }"]
 
   catalog-api:
     build:
@@ -19,13 +29,15 @@ services:
     environment:
       CATALOG_HOST: 0.0.0.0
       CATALOG_PORT: 8081
-      CATALOG_MONGO_URI: mongodb://catalog-mongo:27017
+      CATALOG_MONGO_URI: mongodb://catalog-mongo:27017/?replicaSet=rs0
       CATALOG_MONGO_DATABASE: catalog
     ports:
       - "127.0.0.1:${CATALOG_API_PORT:-8082}:8081"
     depends_on:
       catalog-mongo:
         condition: service_healthy
+      catalog-mongo-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8081/health/ready', timeout=3)"]
       interval: 5s

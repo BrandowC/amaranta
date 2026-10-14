@@ -11,13 +11,16 @@ import { ReleaseStockUseCase } from '../../../catalog/application/release-stock.
  */
 @Injectable()
 export class CatalogStockAdapter implements ProductStockPort {
+  private readonly reservations = new Map<string, StockItemRequest[]>();
+
   constructor(
     private readonly reserveStock: ReserveStockUseCase,
     private readonly releaseStock: ReleaseStockUseCase,
   ) {}
 
-  async reserve(items: StockItemRequest[]): Promise<ReservedStockLine[]> {
+  async reserve(_reservationId: string, items: StockItemRequest[]): Promise<ReservedStockLine[]> {
     const reserved = await this.reserveStock.execute({ items });
+    this.reservations.set(_reservationId, items);
     return reserved.map((line) => ({
       productId: line.productId,
       productName: line.productName,
@@ -26,7 +29,10 @@ export class CatalogStockAdapter implements ProductStockPort {
     }));
   }
 
-  async release(items: StockItemRequest[]): Promise<void> {
+  async release(reservationId: string): Promise<void> {
+    const items = this.reservations.get(reservationId);
+    if (!items) return;
     await this.releaseStock.execute({ items });
+    this.reservations.delete(reservationId);
   }
 }

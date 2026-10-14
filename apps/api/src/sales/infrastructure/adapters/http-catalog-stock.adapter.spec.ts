@@ -22,7 +22,7 @@ describe('HttpCatalogStockAdapter', () => {
     );
     const adapter = new HttpCatalogStockAdapter('http://catalog-api:8081');
 
-    await expect(adapter.reserve([{ productId: 'p-1', quantity: 2 }])).resolves.toEqual([
+    await expect(adapter.reserve('reservation-1', [{ productId: 'p-1', quantity: 2 }])).resolves.toEqual([
       { productId: 'p-1', productName: 'Food', unitPriceAmount: 12500, quantity: 2 },
     ]);
 
@@ -33,7 +33,10 @@ describe('HttpCatalogStockAdapter', () => {
       'content-type': 'application/json',
       'x-correlation-id': expect.any(String),
     });
-    expect(options?.body).toBe(JSON.stringify({ items: [{ productId: 'p-1', quantity: 2 }] }));
+    expect(options?.body).toBe(JSON.stringify({
+      reservationId: 'reservation-1',
+      items: [{ productId: 'p-1', quantity: 2 }],
+    }));
   });
 
   it('surfaces a Catalog contract error instead of hiding it', async () => {
@@ -44,6 +47,6 @@ describe('HttpCatalogStockAdapter', () => {
     );
     const adapter = new HttpCatalogStockAdapter('http://catalog-api:8081');
 
-    await expect(adapter.reserve([{ productId: 'p-1', quantity: 2 }])).rejects.toThrow('out of stock');
+    await expect(adapter.reserve('reservation-1', [{ productId: 'p-1', quantity: 2 }])).rejects.toThrow('out of stock');
   });
 });

@@ -59,11 +59,19 @@ def create_handler(service: CatalogService):
             try:
                 body = self._body()
                 if self.path == "/v1/stock/reservations":
-                    result = service.reserve(body.get("items", []))
+                    result = service.reserve(body.get("reservationId"), body.get("items", []))
                     self._send(201, {"items": result}, correlation_id)
                     return
                 if self.path == "/v1/stock/releases":
-                    service.release(body.get("items", []))
+                    service.release(body.get("reservationId"))
+                    self._send(204, {}, correlation_id)
+                    return
+                if self.path == "/v1/stock/confirmations":
+                    service.confirm(body.get("reservationId"))
+                    self._send(204, {}, correlation_id)
+                    return
+                if self.path == "/v1/stock/expirations":
+                    service.expire(body.get("reservationId"))
                     self._send(204, {}, correlation_id)
                     return
                 self._send(404, {"code": "NOT_FOUND", "message": "route not found"}, correlation_id)

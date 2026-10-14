@@ -8,6 +8,7 @@ export interface CheckoutItem {
 }
 
 export interface CheckoutCommand {
+  reservationId?: string;
   customerId: string;
   createdBy: string;
   channel: OrderChannel;
