@@ -28,7 +28,7 @@ Ya están trazados:
 | 5. Probar runtime | live/ready, correlation ID y consulta | Mongo saludable; API responde en puerto aislado |
 | 6. Cerrar primera capa | Evidencia y PR | El PR declara límites y no lo presenta como cutover |
 | 7. Segunda capa | Atomicidad e idempotencia | Reserva durable por `reservationId` |
-| 8. Integrar Sales | Order/Saga/Outbox + cliente HTTP | Transacción local y compensación verificadas |
+| 8. Integrar Sales | Adaptador HTTP real + Order/Saga/Outbox | La API general usa `CATALOG_SERVICE_URL` y conserva compensación |
 | 9. Migrar tráfico | Ownership de escrituras y datos | No quedan lecturas heredadas del catálogo |
 | 10. Release | QA, fallo reproducible y tag | Solo entonces se autoriza el release final |
 
@@ -43,6 +43,16 @@ Invoke-RestMethod http://localhost:8082/health/live
 Invoke-RestMethod http://localhost:8082/health/ready
 Invoke-RestMethod http://localhost:8082/v1/products
 ```
+
+La API general selecciona el adaptador de red con:
+
+```text
+CATALOG_SERVICE_URL=http://catalog-api:8081
+```
+
+Cuando la variable existe, Sales publica reservas y liberaciones mediante el
+contrato HTTP versionado y propaga un `x-correlation-id`. Sin la variable se
+mantiene el adaptador en proceso para no romper el desarrollo legacy.
 
 ## Límites honestos
 

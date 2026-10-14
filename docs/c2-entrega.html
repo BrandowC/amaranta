@@ -35,7 +35,8 @@
   <h2>1. Resumen ejecutivo</h2>
   <p>El proyecto parte del baseline integrado de Brandow y organiza el siguiente paso:
     separar Catalog como proceso Python independiente, con MongoDB propio, contrato HTTP
-    versionado y pruebas TDD. La entrega demuestra una primera capa ejecutable; no afirma
+    versionado y pruebas TDD. Sales/API general ya puede consumir esa frontera mediante
+    <code>CATALOG_SERVICE_URL</code>. La entrega demuestra una primera capa ejecutable; no afirma
     todavía un cutover productivo.</p>
   <div class="grid">
     <div class="card"><strong class="ok">60% verificado</strong>Alcance, registry, arquitectura, TDD, contrato y boundary de Sales.</div>
@@ -60,7 +61,7 @@
     <li>Levantar MongoDB y el contenedor Python sin el monolito.</li>
     <li>Ejecutar TDD, compilación de sintaxis y validación de Compose.</li>
     <li>Verificar health, correlación, consulta, reserva y liberación con fixture controlado.</li>
-    <li>Validar que Sales use HTTP y nunca lea <code>catalog_db</code>.</li>
+    <li>Validar que Sales use HTTP mediante <code>CATALOG_SERVICE_URL</code> y nunca lea <code>catalog_db</code>.</li>
     <li>Publicar el PR como primera capa, con límites explícitos.</li>
     <li>Implementar después atomicidad/idempotencia, Saga/Outbox, E2E y cutover.</li>
   </ol>

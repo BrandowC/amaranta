@@ -15,7 +15,9 @@ El esqueleto compilable contiene:
 - contrato de salida `CatalogClient`;
 - modelos de reserva;
 - configuración por variables de entorno;
-- punto de entrada para la siguiente iteración.
+- cliente HTTP JSON que consume `/v1/stock/reservations` y `/v1/stock/releases`.
 
-Todavía falta implementar el agregado Order, la transacción local de PostgreSQL y
-la saga completa.
+El agregado Order, la transacción local de PostgreSQL y la saga completa son la
+siguiente capa. La API general de NestJS ya puede seleccionar el mismo contrato
+por `CATALOG_SERVICE_URL`; sin esa variable conserva el adaptador local de
+transición.
