@@ -180,3 +180,10 @@ limitada de telemetría y restauración de bases de datos ensayada.
 - OWASP, modelado de amenazas: https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html
 
 El protocolo de evaluación y reproducción está en [evaluation-protocol.md](evaluation-protocol.md).
+
+La implementación debe seguir la
+[ruta secuencial de madurez](execution-roadmap.md). La ruta separa ocho niveles
+de madurez, define entradas y salidas por fase, y obliga a que cada afirmación
+se enlace a un SHA, una prueba y un manifiesto de corrida. “Exponencial” se usa
+como crecimiento de la capacidad de evidencia, no como una promesa de
+rendimiento.

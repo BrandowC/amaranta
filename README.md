@@ -10,6 +10,10 @@ La descripción siguiente corresponde al MVP heredado.
 y su [protocolo de evaluación](docs/degree-project/evaluation-protocol.md) definen
 la hipótesis, los experimentos, la seguridad y la evidencia necesarios para convertir
 el MVP2 en un sistema distribuido evaluable.
+La ejecución se organiza por gates en la
+[ruta secuencial de madurez](docs/degree-project/execution-roadmap.md): no se
+avanza a Saga, Outbox o mensajería mientras la consistencia de Catalog no esté
+demostrada con evidencia reproducible.
 
 MVP de **Amaranta** (tienda + clínica veterinaria) implementado como un **monolito modular**
 con **NestJS + PostgreSQL** en el backend y **Next.js** en el frontend. El código vive fuera
