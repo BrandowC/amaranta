@@ -6,6 +6,11 @@ y [backlog](docs/mvp2/backlog.md). El nuevo servicio de consulta usa su propia D
 la tienda y checkout siguen en el monolito hasta el cutover de reservas.
 La descripción siguiente corresponde al MVP heredado.
 
+**Proyecto de grado:** el [blueprint de investigación](docs/degree-project/README.md)
+y su [protocolo de evaluación](docs/degree-project/evaluation-protocol.md) definen
+la hipótesis, los experimentos, la seguridad y la evidencia necesarios para convertir
+el MVP2 en un sistema distribuido evaluable.
+
 MVP de **Amaranta** (tienda + clínica veterinaria) implementado como un **monolito modular**
 con **NestJS + PostgreSQL** en el backend y **Next.js** en el frontend. El código vive fuera
 del repo de documentación (`amaranta-shop-docs`) a propósito: este es el proyecto de
