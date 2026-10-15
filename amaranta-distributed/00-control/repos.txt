@@ -1,25 +1,29 @@
-# Repositorios autorizados para el corte actual
+# Inventario oficial descubierto el 2026-10-15
+# Fuente: GitHub organization code-corhuila (gh repo list)
+# Los clones oficiales se guardan en 01-repositories/official/ para no sobrescribir
+# las copias de trabajo que tienen origen en BrandowC/amaranta.
 
 # TRANSVERSALES
-amaranta-shop-api-gateway
-amaranta-shop-worker
-amaranta-shop-workflow
-amaranta-shop-front
+code-corhuila/amaranta-shop-api-gateway
+code-corhuila/amaranta-shop-worker
+code-corhuila/amaranta-shop-workflow
+code-corhuila/amaranta-shop-front
 
 # CATALOG
-amaranta-shop-catalog-db
-amaranta-shop-catalog-api
-amaranta-shop-catalog-portal
+code-corhuila/amaranta-shop-catalog-api
+code-corhuila/amaranta-shop-catalog-db
+code-corhuila/amaranta-shop-catalog-portal
 
 # SALES
-amaranta-shop-sales-db
-amaranta-shop-sales-api
-amaranta-shop-sales-portal
+code-corhuila/amaranta-shop-sales-api
+code-corhuila/amaranta-shop-sales-db
+code-corhuila/amaranta-shop-sales-portal
 
-# YA EXISTENTES
-amaranta-shop-infra-postgres
-amaranta-shop-infra-mongo
-amaranta-shop-security
+# SECURITY AND GOVERNANCE
+code-corhuila/amaranta-shop-security
+code-corhuila/amaranta-shop-docs
 
-# Nota
-# El registro es dinámico. Si se abre un nuevo bounded context, se agrega la nueva tanda y no se mantiene un inventario fijo de 17 repositorios.
+# REFERENCIADOS PERO NO ACCESIBLES DURANTE EL DESCUBRIMIENTO
+# code-corhuila/amaranta-shop-infra-postgres
+# code-corhuila/amaranta-shop-infra-mongo
+# code-corhuila/amaranta-shop-security-db

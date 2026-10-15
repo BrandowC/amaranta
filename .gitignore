@@ -17,3 +17,4 @@ __pycache__/
 .pytest_cache/
 target/
 .claude/
+amaranta-distributed/01-repositories/official/

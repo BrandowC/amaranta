@@ -1,11 +1,14 @@
 {
-  "version": "2026-10-10",
+  "version": "2026-10-15",
   "policy": "dynamic-domain-registry",
-  "status": "current-domain-scope",
-  "progress": {
-    "targetPercent": 60,
-    "verifiedPercent": 60,
-    "basis": "scope-registry-architecture-tdd-catalog-contract-sales-boundary"
+  "status": "real-ecosystem-baseline",
+  "discovery": {
+    "source": "GitHub organization code-corhuila via gh",
+    "account": "VMbrand",
+    "discoveredAt": "2026-10-15",
+    "accessibleRepositoryCount": 12,
+    "cloneRoot": "amaranta-distributed/01-repositories/official",
+    "clonePolicy": "Official clones are read-only onboarding snapshots and never replace the local monorepo copies."
   },
   "currentDomains": [
     "Catalog",
@@ -13,32 +16,44 @@
   ],
   "repositorySet": {
     "transversales": [
-      "amaranta-shop-api-gateway",
-      "amaranta-shop-worker",
-      "amaranta-shop-workflow",
-      "amaranta-shop-front"
+      "code-corhuila/amaranta-shop-api-gateway",
+      "code-corhuila/amaranta-shop-worker",
+      "code-corhuila/amaranta-shop-workflow",
+      "code-corhuila/amaranta-shop-front"
     ],
     "catalog": [
-      "amaranta-shop-catalog-db",
-      "amaranta-shop-catalog-api",
-      "amaranta-shop-catalog-portal"
+      "code-corhuila/amaranta-shop-catalog-db",
+      "code-corhuila/amaranta-shop-catalog-api",
+      "code-corhuila/amaranta-shop-catalog-portal"
     ],
     "sales": [
-      "amaranta-shop-sales-db",
-      "amaranta-shop-sales-api",
-      "amaranta-shop-sales-portal"
+      "code-corhuila/amaranta-shop-sales-db",
+      "code-corhuila/amaranta-shop-sales-api",
+      "code-corhuila/amaranta-shop-sales-portal"
     ],
-    "existing": [
-      "amaranta-shop-infra-postgres",
-      "amaranta-shop-infra-mongo",
-      "amaranta-shop-security"
+    "securityAndGovernance": [
+      "code-corhuila/amaranta-shop-security",
+      "code-corhuila/amaranta-shop-docs"
     ]
   },
+  "unavailableReferences": [
+    "code-corhuila/amaranta-shop-infra-postgres",
+    "code-corhuila/amaranta-shop-infra-mongo",
+    "code-corhuila/amaranta-shop-security-db"
+  ],
+  "promotionPolicy": {
+    "featureToDevelop": "feat/*, fix/* or chore/* -> PR -> develop",
+    "developToQa": "approved commit -> cherry-pick -x -> qa/<work-item> -> PR -> qa",
+    "qaToMain": "validated QA commit -> cherry-pick -x -> release/<version> -> PR -> main",
+    "forbidden": [
+      "merge develop -> qa",
+      "merge qa -> main"
+    ],
+    "mainApproval": "ariel5253"
+  },
   "notes": [
-    "No existe un manifiesto fijo de 17 repositorios.",
-    "Catalog API debe desarrollarse en Python con TDD desde el primer commit.",
-    "Sales API debe desarrollarse en Java y su base debe ser PostgreSQL.",
-    "El servicio extraído vive en su repositorio desde la primera iteración de extracción.",
-    "Cuando se inicia un nuevo bounded context, se solicita su triada de repositorios y el registry se expande." 
+    "Catalog API and Sales API already contain independent implementations; they are not first-extraction scaffolds.",
+    "Gateway, Front and Catalog Portal have code in unmerged feature branches but their develop branches are incomplete.",
+    "See repository-validation.md for evidence, validation limits and the next P0."
   ]
 }
