@@ -10,7 +10,7 @@ the real extraction boundary without presenting planned components as completed.
 The validated composition is `docker-compose.distributed.yml`. No public deployment
 URL is claimed for this release; the supported target is a local Docker environment.
 The presentation used for the oral delivery is
-[`deliverables/amaranta-c3-v3.0.0-presentation.pptx`](../deliverables/amaranta-c3-v3.0.0-presentation.pptx).
+[`deliverables/amaranta-c3-v3.0.0-presentation-final.pptx`](../deliverables/amaranta-c3-v3.0.0-presentation-final.pptx).
 
 ## System architecture
 
@@ -72,7 +72,7 @@ Validation performed for this release:
 | Check | Result |
 | --- | --- |
 | API unit/application suite | 8 suites, 42 tests passed |
-| Independent Catalog suite | 2 suites, 22 tests passed |
+| Independent Catalog suite | 11 tests passed |
 | API and distributed Compose syntax | valid |
 | `GET /health` on Amaranta API | 200 |
 | `GET /health/ready` on Catalog API with MongoDB available | 200 |
@@ -99,11 +99,9 @@ Validation performed for this release:
    curl.exe -i http://localhost:8082/health/ready
    ```
 
-   The readiness request must not report a healthy Catalog while MongoDB is down.
-   In the current implementation it can time out while the Mongo driver waits for
-   the dependency; after MongoDB is restored it returns `200`. This is useful
-   failure evidence and also exposes an improvement: bound the dependency probe
-   and return an explicit `503` within the readiness timeout.
+   The readiness request returns `503` while MongoDB is down and returns `200`
+   after the database restarts. MongoDB connection, selection, and socket checks
+   have a two-second timeout so the health signal remains bounded.
 
 ## Handover and operations
 
@@ -126,9 +124,7 @@ items are intentionally outside `v3.0.0`:
 1. The autonomous Sales API and its persisted Saga state are not yet runnable.
 2. RabbitMQ, durable outbox, idempotent inbox, DLQ, and worker are not yet present
    in the runtime composition.
-3. The Catalog readiness dependency timeout should be made bounded and map a
-   MongoDB outage to a timely `503` response.
-4. Full metrics export, traces, alert delivery, and a public deployment remain
+3. Full metrics export, traces, alert delivery, and a public deployment remain
    future operational work.
 
 These limitations are recorded so that the demo, presentation, and oral defense
