@@ -10,6 +10,9 @@
 - Bounded MongoDB connection and selection checks to two seconds so Catalog
   readiness returns `503` during a database outage instead of waiting on the
   driver default timeout.
+- Recorded the component sequence used for the release: Infra Mongo `v2.0.0`,
+  Infra PostgreSQL `v2.0.0`, and the independently verified API Gateway
+  `v2.0.1`.
 - Added the C3 runbook with the actual architecture, contracts, health checks,
   a dependency-failure demonstration, handover commands, and explicitly recorded
   limitations.

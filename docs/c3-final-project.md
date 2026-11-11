@@ -10,7 +10,26 @@ the real extraction boundary without presenting planned components as completed.
 The validated composition is `docker-compose.distributed.yml`. No public deployment
 URL is claimed for this release; the supported target is a local Docker environment.
 The presentation used for the oral delivery is
-[`deliverables/amaranta-c3-v3.0.0-presentation-final.pptx`](../deliverables/amaranta-c3-v3.0.0-presentation-final.pptx).
+[`deliverables/amaranta-c3-v3.0.0-presentation-sequence.pptx`](../deliverables/amaranta-c3-v3.0.0-presentation-sequence.pptx).
+
+## Release sequence
+
+The product release follows dependency order. Each supporting component has its
+own tag and verification boundary; `v3.0.0` records the Amaranta product baseline
+without copying their full commit histories into this repository.
+
+| Step | Decision and implementation | Evidence |
+| --- | --- | --- |
+| 1. Baseline | Preserve the bounded contexts and their tests before changing runtime dependencies. | Amaranta API suite, Catalog suites, Compose validation |
+| 2. Infrastructure | Select the already released runtime foundations for Catalog and Sales persistence. | `amaranta-shop-infra-mongo` `v2.0.0`; `amaranta-shop-infra-postgres` `v2.0.0` |
+| 3. Edge boundary | Verify the API Gateway independently before using it as the platform entry point. | `amaranta-shop-api-gateway` `v2.0.1`; route, security, trace, and dependency-failure tests |
+| 4. Integration | Assemble the runnable Amaranta API, Catalog API, MongoDB, API PostgreSQL, and Sales PostgreSQL boundary. | `docker-compose.distributed.yml` and `scripts/verify-c3.ps1` |
+| 5. Product release | Tag the documented, runnable baseline after test and recovery checks. | Amaranta `v3.0.0` |
+
+The Gateway remains a separately versioned component in this release. The current
+local Compose profile exposes the Amaranta API directly for the validated demo;
+the Gateway passed its own contract suite and is ready to be wired in through its
+published configuration in a subsequent integration increment.
 
 ## System architecture
 
