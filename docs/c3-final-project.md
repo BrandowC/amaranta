@@ -9,6 +9,8 @@ the real extraction boundary without presenting planned components as completed.
 
 The validated composition is `docker-compose.distributed.yml`. No public deployment
 URL is claimed for this release; the supported target is a local Docker environment.
+The presentation used for the oral delivery is
+[`deliverables/amaranta-c3-v3.0.0-presentation.pptx`](../deliverables/amaranta-c3-v3.0.0-presentation.pptx).
 
 ## System architecture
 
