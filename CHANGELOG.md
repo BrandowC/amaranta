@@ -7,6 +7,9 @@
   database boundary.
 - Validated the API test suite (42 tests) and the independent Catalog suite (22
   tests), as well as both Compose configurations.
+- Bounded MongoDB connection and selection checks to two seconds so Catalog
+  readiness returns `503` during a database outage instead of waiting on the
+  driver default timeout.
 - Added the C3 runbook with the actual architecture, contracts, health checks,
   a dependency-failure demonstration, handover commands, and explicitly recorded
   limitations.

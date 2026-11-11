@@ -59,7 +59,13 @@ class MongoProductRepository:
             from pymongo import MongoClient
         except ImportError as error:
             raise RuntimeError("Install the mongo extra to use MongoProductRepository") from error
-        self._client = MongoClient(uri, retryWrites=True)
+        self._client = MongoClient(
+            uri,
+            retryWrites=True,
+            connectTimeoutMS=2000,
+            serverSelectionTimeoutMS=2000,
+            socketTimeoutMS=2000,
+        )
         self._database = self._client[database]
         self._collection = self._database["products"]
         self._reservations = self._database["reservations"]

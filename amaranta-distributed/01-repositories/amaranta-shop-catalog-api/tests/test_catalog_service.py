@@ -1,7 +1,11 @@
+import http.client
+import threading
 import unittest
+from http.server import ThreadingHTTPServer
 
 from src.catalog_service.domain import CatalogError, Product
 from src.catalog_service.repository import InMemoryProductRepository
+from src.catalog_service.server import create_handler
 from src.catalog_service.service import CatalogService
 
 
@@ -75,6 +79,27 @@ class CatalogServiceTddTests(unittest.TestCase):
         self.service.expire("expired-id")
         self.assertEqual(self.repository.by_id("2").stock_quantity, 3)
         self.assertEqual(self.repository.reservation("expired-id")["status"], "EXPIRED")
+
+    def test_ready_returns_503_when_the_repository_is_unavailable(self) -> None:
+        class UnavailableRepository:
+            def active_products(self):
+                raise TimeoutError("database unavailable")
+
+        service = CatalogService(UnavailableRepository())
+        server = ThreadingHTTPServer(("127.0.0.1", 0), create_handler(service))
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=2)
+            connection.request("GET", "/health/ready", headers={"x-correlation-id": "c3-health-check"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 503)
+            self.assertEqual(response.getheader("x-correlation-id"), "c3-health-check")
+            self.assertEqual(response.read(), b'{"status": "not_ready"}')
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
 
 
 if __name__ == "__main__":
