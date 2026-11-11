@@ -1,4 +1,17 @@
-# Amaranta — MVP (monolito modular)
+# Amaranta — C3 operational baseline (v3.0.0)
+
+**C3 release scope:** this release packages the runnable system that exists today:
+the Amaranta API, its PostgreSQL database, and the independently deployed NestJS
+Catalog service with its own PostgreSQL database. The reproducible validation and demo procedure
+are in [the C3 final-project guide](docs/c3-final-project.md). The release does
+not claim that the planned autonomous Sales service, durable messaging, worker, or
+full Saga have been completed.
+
+The C3 guide records the release sequence and the component versions selected for
+the platform baseline, so that the product tag is traceable without copying the
+full history of every supporting repository.
+
+The historical MVP and MVP2 context follows.
 
 **Avance MVP2:** [Catalog independiente — HU-CAT-001](apps/catalog/README.md),
 [baseline y GAP](docs/mvp2/baseline.md), [arquitectura](docs/mvp2/architecture.md)
