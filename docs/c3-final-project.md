@@ -2,13 +2,14 @@
 
 ## Release statement
 
-`v3.0.0` is the operational baseline that can be built and demonstrated from this
-repository. It combines the Amaranta NestJS application with an independent,
-network-accessed Catalog service. The purpose of this release is to demonstrate
-the real extraction boundary without presenting planned components as completed.
+`v3.0.0` is the C3 release candidate that can be built and demonstrated from this
+repository. It combines the Amaranta NestJS application with the independently
+deployed NestJS Catalog service. The purpose of this release is to demonstrate the
+real extraction boundary without presenting planned components as completed.
 
-The validated composition is `docker-compose.distributed.yml`. No public deployment
-URL is claimed for this release; the supported target is a local Docker environment.
+The validated composition is the tracked root `docker-compose.yml`. No public
+deployment URL is claimed for this release; the supported target is a local Docker
+environment.
 The presentation used for the oral delivery is
 [`deliverables/amaranta-c3-v3.0.0-presentation-sequence.pptx`](../deliverables/amaranta-c3-v3.0.0-presentation-sequence.pptx).
 
@@ -39,29 +40,26 @@ published configuration in a subsequent integration increment.
 Browser or API client
         |
         v
-Amaranta API (NestJS, :8083) ---- HTTP + x-correlation-id ----> Catalog API (Python, :8082)
-        |                                                               |
-        v                                                               v
-API PostgreSQL (:55435)                                            MongoDB (:27017)
-        |
-        v
-Sales PostgreSQL (:55434, prepared persistence boundary)
+Amaranta API (NestJS, :8080)              Catalog API (NestJS, :8081)
+        |                                           |
+        v                                           v
+API PostgreSQL (:5432)                     Catalog PostgreSQL (:55432)
 ```
 
 The API contains the Identity, Catalog, Sales, Clinical, and Scheduling modules
 with domain/application/infrastructure boundaries. The extracted Catalog service
-owns its MongoDB connection and exposes versioned HTTP endpoints. The Sales-to-
-Catalog dependency is an adapter and not a cross-database query.
+owns its PostgreSQL schema and exposes versioned HTTP endpoints. The planned
+Sales-to-Catalog dependency is an adapter boundary, not a cross-database query.
 
 ### Implemented contracts and operational interfaces
 
 | Interface | Evidence in repository | Operational purpose |
 | --- | --- | --- |
 | Amaranta API | `apps/api`, `GET /health`, `GET /api-docs` | Main application and OpenAPI UI |
-| Catalog HTTP service | `amaranta-distributed/01-repositories/amaranta-shop-catalog-api`, `GET /v1/products` | Independent Catalog boundary |
-| Catalog readiness | `GET /health/live`, `GET /health/ready` | Separates process liveness from MongoDB availability |
+| Catalog HTTP service | `apps/catalog`, `GET /v1/products` | Independent Catalog boundary |
+| Catalog readiness | `GET /health/live`, `GET /health/ready` | Separates process liveness from PostgreSQL availability |
 | Correlation header | `x-correlation-id` in Catalog HTTP server and Sales adapter | Request-level integration correlation |
-| Persistence isolation | `api-db`, `catalog-mongo`, `sales-db` Compose services | Prevents direct shared database access |
+| Persistence isolation | `postgres`, `catalog-db` Compose services | Prevents direct shared database access |
 
 The detailed migration decisions are recorded in
 [`ADR-010`](adr/ADR-010-c2-distributed-release.md) and
@@ -74,7 +72,7 @@ derived from `.env.example`. Never commit private keys or `.env` files.
 
 ```powershell
 cd C:\path\to\amaranta
-docker compose -f docker-compose.distributed.yml up --build -d
+docker compose -f docker-compose.yml up --build -d
 .\scripts\verify-c3.ps1
 
 Set-Location apps\api
@@ -91,46 +89,47 @@ Validation performed for this release:
 | Check | Result |
 | --- | --- |
 | API unit/application suite | 8 suites, 42 tests passed |
-| Independent Catalog suite | 11 tests passed |
-| API and distributed Compose syntax | valid |
+| Independent Catalog suite | 22 tests passed |
+| Root Compose syntax | valid |
 | `GET /health` on Amaranta API | 200 |
-| `GET /health/ready` on Catalog API with MongoDB available | 200 |
+| `GET /health/ready` on Catalog API with PostgreSQL available | 200 |
 
 ## Live demonstration
 
 1. Start the composition and run `scripts/verify-c3.ps1`.
-2. Open `http://localhost:8083/api-docs` to show the published Amaranta API.
-3. Request `http://localhost:8082/v1/products` with an `x-correlation-id` header.
+2. Open `http://localhost:8080/api-docs` to show the published Amaranta API.
+3. Request `http://localhost:8081/v1/products` with an `x-correlation-id` header.
    A valid empty collection is expected until an approved data load exists; do not
    invent production catalog data for the demo.
 4. Show the separate containers and data stores:
 
    ```powershell
-   docker compose -f docker-compose.distributed.yml ps
+   docker compose -f docker-compose.yml ps
    ```
 
-5. Demonstrate a real dependency failure by stopping only MongoDB:
+5. Demonstrate a real dependency failure by stopping only the Catalog database:
 
    ```powershell
-   docker compose -f docker-compose.distributed.yml stop catalog-mongo
-   curl.exe --max-time 10 -i http://localhost:8082/health/ready
-   docker compose -f docker-compose.distributed.yml start catalog-mongo
-   curl.exe -i http://localhost:8082/health/ready
+   docker compose -f docker-compose.yml stop catalog-db
+   curl.exe --max-time 10 -i http://localhost:8081/health/ready
+   curl.exe -i http://localhost:8081/health/live
+   docker compose -f docker-compose.yml start catalog-db
+   curl.exe -i http://localhost:8081/health/ready
    ```
 
-   The readiness request returns `503` while MongoDB is down and returns `200`
-   after the database restarts. MongoDB connection, selection, and socket checks
-   have a two-second timeout so the health signal remains bounded.
+   The readiness request returns `503` while PostgreSQL is down; liveness remains
+   `200`; readiness returns to `200` after the database restarts. This is a
+   dependency-health demonstration, not a completed Saga or compensation flow.
 
 ## Handover and operations
 
 | Need | Command or source |
 | --- | --- |
-| Start the runnable system | `docker compose -f docker-compose.distributed.yml up --build -d` |
-| Inspect runtime | `docker compose -f docker-compose.distributed.yml ps` and `logs` |
-| Stop only this composition | `docker compose -f docker-compose.distributed.yml down` |
-| API contract | `http://localhost:8083/api-docs` while running |
-| Catalog contract and tests | `amaranta-distributed/01-repositories/amaranta-shop-catalog-api` |
+| Start the runnable system | `docker compose -f docker-compose.yml up --build -d` |
+| Inspect runtime | `docker compose -f docker-compose.yml ps` and `logs` |
+| Stop only this composition | `docker compose -f docker-compose.yml down` |
+| API contract | `http://localhost:8080/api-docs` while running |
+| Catalog contract and tests | `apps/catalog`, `apps/catalog/contracts/openapi.json` |
 | Domain architecture | `docs/flujo-dominios.svg` and `docs/path-to-microservices.md` |
 | Change history | `CHANGELOG.md` |
 

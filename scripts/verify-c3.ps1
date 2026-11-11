@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$ComposeFile = 'docker-compose.distributed.yml'
+    [string]$ComposeFile = 'docker-compose.yml'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,12 +31,12 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $checks = @(
-    Assert-Endpoint -Name 'Amaranta API health' -Uri 'http://127.0.0.1:8083/health'
-    Assert-Endpoint -Name 'Catalog readiness' -Uri 'http://127.0.0.1:8082/health/ready'
+    Assert-Endpoint -Name 'Amaranta API health' -Uri 'http://127.0.0.1:8080/health'
+    Assert-Endpoint -Name 'Catalog readiness' -Uri 'http://127.0.0.1:8081/health/ready'
 )
 
 $correlationId = [guid]::NewGuid().ToString()
-$catalogResponse = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:8082/v1/products' -Headers @{
+$catalogResponse = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:8081/v1/products' -Headers @{
     'x-correlation-id' = $correlationId
 } -TimeoutSec 15
 
