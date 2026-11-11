@@ -7,6 +7,10 @@ are in [the C3 final-project guide](docs/c3-final-project.md). The release does
 not claim that the planned autonomous Sales service, durable messaging, worker, or
 full Saga have been completed.
 
+The C3 guide records the release sequence and the component versions selected for
+the platform baseline, so that the product tag is traceable without copying the
+full history of every supporting repository.
+
 The historical MVP and MVP2 context follows.
 
 **Avance MVP2:** [Catalog independiente — HU-CAT-001](apps/catalog/README.md),
